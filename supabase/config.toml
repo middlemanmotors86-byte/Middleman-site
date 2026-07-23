@@ -1,0 +1,22 @@
+project_id = "gvezvcyfoyxzktkzfvuw"
+
+[functions.automanager-inventory]
+verify_jwt = false
+
+[functions.waynereaves-inventory]
+verify_jwt = false
+
+[functions.ai-chat]
+verify_jwt = false
+
+[functions.generate-description]
+verify_jwt = false
+
+[functions.submit-contact]
+verify_jwt = false
+
+[functions.submit-credit-app]
+verify_jwt = false
+
+[functions.admin-sql]
+verify_jwt = true

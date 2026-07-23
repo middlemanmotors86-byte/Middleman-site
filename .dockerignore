@@ -1,0 +1,16 @@
+# Git
+.git
+
+# Node modules
+node_modules
+
+# Build output
+dist
+
+# Environment files
+.env*
+
+# IDE and OS files
+.vscode
+npm-debug.log
+*.DS_Store

@@ -1,0 +1,2 @@
+REVOKE EXECUTE ON FUNCTION public.upsert_customer_profile_from_lead() FROM PUBLIC, anon, authenticated;
+REVOKE EXECUTE ON FUNCTION public.upsert_customer_profile_from_credit_app() FROM PUBLIC, anon, authenticated;

@@ -1,0 +1,172 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://gvezvcyfoyxzktkzfvuw.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "middleman-motors-mcp",
+      "version": "0.2.0",
+      "title": "Middleman Motors"
+    },
+    "tools": [
+      {
+        "name": "search_inventory",
+        "title": "Search Middleman Motors inventory",
+        "description": "Search Middleman Motors' current pre-owned vehicle inventory by make, model, year, or keywords. Returns matching vehicles with price, mileage, and stock number.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": true
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "query": {
+              "type": "string",
+              "description": "Search terms, e.g. 'Toyota Camry', '2020 SUV', 'red truck'. Empty returns all.",
+              "default": ""
+            },
+            "max_price": {
+              "type": "number",
+              "description": "Optional maximum price in USD."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10,
+              "description": "Max results to return (1-50)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_dealership_info",
+        "title": "Get Middleman Motors dealership info",
+        "description": "Return general information about Middleman Motors: services, service area, certifications, inspection policy, and key page URLs.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "section": {
+              "type": "string",
+              "enum": [
+                "all",
+                "services",
+                "policies",
+                "pages",
+                "certifications"
+              ],
+              "default": "all",
+              "description": "Which section of the dealership info to return."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_recent_leads",
+        "title": "List recent Middleman Motors leads",
+        "description": "Return the most recent customer leads. Admin/finance access only. Sensitive customer data — do not share externally.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10,
+              "description": "Max leads to return (1-50)."
+            },
+            "status": {
+              "type": "string",
+              "description": "Optional status filter (e.g. 'new', 'contacted')."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_credit_applications",
+        "title": "List Middleman Motors credit applications",
+        "description": "Return recent credit applications. Admin/finance access only. Sensitive PII — do not share externally. Redacts SSN and DL numbers.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10,
+              "description": "Max applications to return (1-50)."
+            },
+            "status": {
+              "type": "string",
+              "description": "Optional status filter (e.g. 'pending', 'approved', 'declined')."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_deals_in_pipeline",
+        "title": "List deals in the sales pipeline",
+        "description": "Return active deals from the sales pipeline. Admin/finance access only. Shows stage, vehicle, customer, and sale price.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 50,
+              "default": 10,
+              "description": "Max deals to return (1-50)."
+            },
+            "stage": {
+              "type": "string",
+              "description": "Optional pipeline stage filter (e.g. 'new', 'financing', 'closed')."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}

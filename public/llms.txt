@@ -1,0 +1,22 @@
+# Middleman Motors
+
+> Independent used-car dealership in Snellville, GA offering quality pre-owned vehicles and in-house financing.
+
+Middleman Motors LLC is a GIADA-affiliated, minority-owned Georgia dealership at 1970 Main St. East, Suite B12, Snellville, GA 30078. We specialize in transparent pricing and in-house financing for every credit situation.
+
+## Pages
+
+- [Home](/): Dealership overview, featured inventory, financing programs.
+- [Inventory](/inventory): Live vehicle inventory from our Wayne Reaves DMS feed.
+- [Compare Vehicles](/compare): Side-by-side comparison of selected vehicles.
+- [Partners](/partners): GIADA network and dealer partner directory.
+- [Government Contracting](/government): Minority-owned certifications and government fleet services.
+- [Lot View](/lot-view): 360° / storefront view of our Snellville lot.
+- [Apply for Financing](/apply): Download credit application PDFs (standard and Lendmark).
+- [Quick Qualify](/quick-qualify): 60-second 700Credit soft-pull pre-qualification.
+- [Prequalify](/prequalify): Alternative pre-qualification entry.
+- [Lendmark Financing](/lendmark): Lendmark Financial credit application (Dealer #66578).
+
+## Optional
+
+- [Sign in](/auth): Google sign-in for returning customers.

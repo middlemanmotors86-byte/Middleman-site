@@ -1,0 +1,1 @@
+REVOKE EXECUTE ON FUNCTION public.create_initial_followup_task() FROM PUBLIC, anon, authenticated;
