@@ -16,7 +16,6 @@ import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import FloatingCTA from "@/components/FloatingCTA";
 import ComparisonBar from "@/components/ComparisonBar";
-import GoogleLoginPrompt from "@/components/GoogleLoginPrompt";
 import QuickQualifyTopBanner from "@/components/QuickQualifyTopBanner";
 import { usePageView } from "@/hooks/usePageView";
 
