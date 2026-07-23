@@ -16,7 +16,6 @@ import ContactSection from "@/components/ContactSection";
 import Footer from "@/components/Footer";
 import FloatingCTA from "@/components/FloatingCTA";
 import ComparisonBar from "@/components/ComparisonBar";
-import QuickQualifyTopBanner from "@/components/QuickQualifyTopBanner";
 import { usePageView } from "@/hooks/usePageView";
 
 const Index = () => {
@@ -77,8 +76,7 @@ const Index = () => {
         </script>
       </Helmet>
 
-      <main className="min-h-screen bg-background">
-        <QuickQualifyTopBanner />
+      <main className="min-h-screen bg-background">        
         <Navbar />
         <Hero />
         

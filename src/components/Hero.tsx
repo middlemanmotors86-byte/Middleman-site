@@ -33,7 +33,7 @@ const Hero = () => {
           <div className="inline-flex items-center gap-2 bg-secondary/80 backdrop-blur-sm border border-primary/30 rounded-full px-4 py-2 mb-6 animate-fade-in">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
             <span className="text-sm text-muted-foreground">
-              Servicing From Georgia to Virginia
+              Servicing From Georgia To Virginia And Beyond
             </span>
           </div>
 
@@ -46,13 +46,12 @@ const Hero = () => {
 
           {/* Subheadline */}
           <p className="text-lg md:text-xl text-muted-foreground mb-4 max-w-xl animate-slide-up" style={{ animationDelay: "0.2s" }}>
-            No hidden fees. No slick talk. Just reliable, safe, and affordable 
-            vehicles for hardworking families in our community.
+            Reliable, safe, and affordable vehicles for hardworking families in our community.
           </p>
 
           {/* Brand slogan */}
           <p className="text-base md:text-lg font-heading italic text-primary mb-8 max-w-2xl animate-slide-up border-l-2 border-primary/60 pl-4" style={{ animationDelay: "0.3s" }}>
-            "If you want to change your current driving situation, pre-qualify with Middleman using your self-reported financial information."
+            "If you want to change your current driving situation, try our new 700Credit QuickQualify tool and get pre-approved for a vehicle today."
           </p>
 
           {/* CTA Buttons */}

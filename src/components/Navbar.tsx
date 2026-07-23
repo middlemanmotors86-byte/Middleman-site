@@ -205,10 +205,7 @@ const Navbar = () => {
 
             {/* Action Group */}
             <div className="flex items-center gap-3 ml-2">
-              <CartDrawer />
-              <Button variant="gold" size="sm" onClick={() => navigate("/quick-qualify")}>
-                Pre-Qualify
-              </Button>
+              <CartDrawer />              
             </div>
           </div>
 
