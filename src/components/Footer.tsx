@@ -1,4 +1,4 @@
-import { Facebook, Instagram, Twitter, Youtube, Phone, Mail, MapPin } from "lucide-react";
+import { Facebook, Instagram, Twitter, Youtube, Phone, Mail, MapPin, Clock } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 
 const Footer = () => {
@@ -122,7 +122,7 @@ const Footer = () => {
                   <MapPin className="w-5 h-5 shrink-0 mt-0.5" />
                   <span>1970 Main St East, Suite B12<br />Snellville, GA 30078</span>
                 </a>
-              </li>
+              </li>              
               <li>
                 <a
                   href="tel:+17706760367"
