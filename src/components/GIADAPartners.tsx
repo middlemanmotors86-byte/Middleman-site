@@ -50,11 +50,6 @@ const partnerCategories: Category[] = [
       { name: "Credit Acceptance", phone: "770-841-5822", website: "creditacceptance.com" },
       { name: "Lendmark Financial Services", phone: "678-358-8706", website: "lendmarkfinancial.com", description: "50 locations in Georgia with fast and friendly service.", applicationPdf: "/pdf/lendmark-credit-application.pdf" },
       { name: "Professional Financial Services", phone: "(470) 345-6715", website: "pfs-corp.net", description: "Common Sense Loans At Uncommon Speed." },
-      { name: "Ottomoto", phone: "770-406-8598", website: "ottomoto.net", description: "Vehicle financing platform connecting dealers with lenders." },
-      { name: "International Credit", phone: "678-325-5154", website: "internationalcreditinc.com" },
-      { name: "TRG Auto Finance", phone: "904-476-1374", website: "trgautofinance.com", description: "Receivable purchase programs and floor plan options." },
-      { name: "Peoples Financial", phone: "229-242-6620", website: "peoplesfinancial.net" },
-      { name: "American Finance", phone: "302-786-4119", website: "americanfinancellc.com" },
     ],
   },
   {
@@ -88,7 +83,6 @@ const partnerCategories: Category[] = [
     label: "DMS & Software",
     partners: [
       { name: "Wayne Reaves Software", phone: "800-701-8082", website: "waynereaves.com", description: "Leading dealer management software since 1987." },
-      { name: "DealerCenter", phone: "888-669-2669", website: "dealercenter.net", description: "Web-based dealer management software." },
       { name: "Deal Pack (ABCoA)", phone: "800-526-5832", website: "dealpack.com", description: "Turn-key DMS software.", discount: "20% off one-time fee for GIADA members" },
       { name: "Comsoft", phone: "800-849-3838", website: "comsoft.com", description: "Dealership management & marketing software." },
       { name: "vAuto", phone: "877-828-8614", website: "vauto.com", description: "Live market view for better dealer decisions." },
@@ -127,9 +121,7 @@ const partnerCategories: Category[] = [
     label: "Compliance & Credit Reports",
     partners: [
       { name: "700Credit", phone: "866-273-3848", website: "700credit.com", description: "Bureau-inclusive credit and compliance solutions." },
-      { name: "Microbilt Corp", phone: "866-538-9815", website: "microbilt.com", description: "Registered consumer credit reporting agency." },
       { name: "Carfax", phone: "888-788-7715", website: "carfax.com" },
-      { name: "Auto Data Direct", phone: "850-877-8804", website: "add123.com", description: "Vehicle database searches." },
     ],
   },
   {
