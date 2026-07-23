@@ -31,14 +31,17 @@ const SevenHundredCreditQR = ({ compact = false }: SevenHundredCreditQRProps) =>
           <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-3">
             Pre-Qualify in Seconds — Right From Your Phone
           </h2>
-          <p className="font-heading italic text-primary border-l-2 border-primary/60 pl-4 mb-4 text-sm md:text-base">
-            "If you want to change your current driving situation, pre-qualify with Middleman with your self-reported financial information."
-          </p>
           <p className="text-sm md:text-base text-muted-foreground mb-4">
             Point your camera at this code to open Middleman Motors’ 700Credit
-            QuickQualify soft-pull page. No SSN, no DOB, and{" "}
-            <span className="font-semibold text-primary">zero impact on your credit score</span>.
+            QuickQualify soft-pull page.
           </p>
+          {/* Pre-Qualifying Fee Disclosure */}
+          <div className="bg-secondary/60 backdrop-blur-sm border border-border/50 rounded-lg px-4 py-3 mb-4 max-w-xl animate-slide-up" style={{ animationDelay: "0.5s" }}>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              <span className="font-semibold text-foreground">Pre-Qualifying Fee:</span>{" "}
+              A non-refundable fee of <span className="font-semibold text-primary">$100</span> is required to obtain a soft credit report for evaluating eligibility for vehicle purchase and financing. This does not impact your credit score.
+            </p>
+          </div>
           <ul className="mb-6 space-y-2 text-sm text-muted-foreground">
             <li className="flex items-center gap-2 justify-center md:justify-start">
               <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
@@ -56,33 +59,14 @@ const SevenHundredCreditQR = ({ compact = false }: SevenHundredCreditQRProps) =>
                 Download QR Code
               </a>
             </Button>
-            <Button asChild variant="outline" size="lg" className="gap-2">
-              <a
-                href="https://www.quickqualify.com/dealer/middlemanmotors"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Open Link
-              </a>
-            </Button>
+        
           </div>
         </div>
+        
 
         <div className="shrink-0 flex flex-col items-center">
-          <div className="rounded-xl border-2 border-primary/30 bg-white p-3 shadow-gold">
-            <img
-              src={qrCodeSrc}
-              alt="QR code for Middleman Motors 700Credit soft-pull pre-qualification"
-              className={`block rounded-lg ${compact ? "h-48 w-48" : "h-64 w-64 md:h-80 md:w-80"}`}
-              loading="lazy"
-            />
-          </div>
-          <p className="mt-3 text-center text-xs text-muted-foreground">
-            Scans tracked via middlemanmotors.com/scan → 700Credit
-          </p>
-
           {/* How to scan */}
-          <div className="mt-5 w-full max-w-sm rounded-xl border border-border bg-secondary/40 p-4 text-left">
+          <div className="mt-5 mb-4 w-full max-w-sm rounded-xl border border-border bg-secondary/40 p-4 text-left">
             <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">
               How to scan
             </p>
@@ -107,6 +91,19 @@ const SevenHundredCreditQR = ({ compact = false }: SevenHundredCreditQRProps) =>
               </li>
             </ol>
           </div>
+
+          {/* QR Code */}
+          <div className="rounded-xl border-2 border-primary/30 bg-white p-3 shadow-gold">
+            <img
+              src={qrCodeSrc}
+              alt="QR code for Middleman Motors 700Credit soft-pull pre-qualification"
+              className={`block rounded-lg ${compact ? "h-48 w-48" : "h-64 w-64 md:h-80 md:w-80"}`}
+              loading="lazy"
+            />
+          </div>
+          <p className="mt-3 text-center text-xs text-muted-foreground">
+            Scans tracked via middlemanmotors.com/scan → 700Credit
+          </p>
         </div>
       </div>
 

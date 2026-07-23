@@ -63,27 +63,7 @@ const Hero = () => {
             <Button variant="heroOutline" onClick={() => navigate("/inventory")}>
               Browse Inventory
             </Button>
-          </div>
-
-          {/* QuickQualify highlight */}
-          <div className="bg-primary/10 backdrop-blur-sm border border-primary/40 rounded-lg px-4 py-3 mb-4 max-w-xl animate-slide-up" style={{ animationDelay: "0.45s" }}>
-            <p className="text-xs text-foreground/90 leading-relaxed">
-              <span className="font-bold text-primary">NEW · 700Credit QuickQualify:</span>{" "}
-              Pre-qualify with just your name and address — built off your{" "}
-              <span className="font-semibold text-foreground">self-reported financial information</span>.
-              No full SSN, no DOB, and{" "}
-              <span className="font-semibold text-primary">zero impact on your credit score</span>{" "}
-              (soft inquiry only, per FCRA).
-            </p>
-          </div>
-
-          {/* Pre-Qualifying Fee Disclosure */}
-          <div className="bg-secondary/60 backdrop-blur-sm border border-border/50 rounded-lg px-4 py-3 mb-12 max-w-xl animate-slide-up" style={{ animationDelay: "0.5s" }}>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              <span className="font-semibold text-foreground">Pre-Qualifying Fee:</span>{" "}
-              A non-refundable fee of <span className="font-semibold text-primary">$100</span> is required to obtain a soft credit report for evaluating eligibility for vehicle purchase and financing. This does not impact your credit score.
-            </p>
-          </div>
+          </div>      
 
           {/* Trust Indicators */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 animate-slide-up" style={{ animationDelay: "0.6s" }}>
