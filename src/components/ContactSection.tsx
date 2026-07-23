@@ -331,16 +331,7 @@ const ContactSection = () => {
               </form>
             </CardContent>
           </Card>
-        </div>
-
-        {/* Map Embed Placeholder */}
-        <div className="mt-12 rounded-2xl overflow-hidden border border-border h-[300px] bg-secondary flex items-center justify-center">
-          <div className="text-center text-muted-foreground">
-            <MapPin className="w-12 h-12 mx-auto mb-4 text-primary" />
-            <p className="text-lg font-medium">1970 Main St East, Suite B12, Snellville, GA 30078</p>
-            <p className="text-sm">Interactive map coming soon</p>
-          </div>
-        </div>
+        </div>        
       </div>
     </section>
   );
