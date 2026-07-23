@@ -60,7 +60,7 @@ const Footer = () => {
     <footer className="bg-charcoal-dark border-t border-border">
       {/* Main Footer */}
       <div className="container mx-auto px-4 py-12">
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid md:grid-cols-3 lg:grid-cols-3 gap-10">
           {/* Brand */}
           <div>
             <h3 className="text-2xl font-heading font-bold text-gradient-gold mb-4">
@@ -106,39 +106,6 @@ const Footer = () => {
             </ul>
           </div>
 
-          {/* Services */}
-          <div>
-            <h4 className="font-heading font-semibold text-foreground mb-4">
-              Our Services
-            </h4>
-            <ul className="space-y-2">
-              {services.map((service) => (
-                <li key={service} className="text-muted-foreground">
-                  {service}
-                </li>
-              ))}
-            </ul>
-            
-            {/* GIADA Partner Links */}
-            <h4 className="font-heading font-semibold text-foreground mb-4 mt-6">
-              Industry Partners
-            </h4>
-            <ul className="space-y-2">
-              {partnerLinks.map((link) => (
-                <li key={link.label}>
-                  <a
-                    href={link.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-muted-foreground hover:text-primary transition-colors"
-                    title={link.description}
-                  >
-                    {link.label}
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </div>
 
           {/* Contact */}
           <div>
@@ -163,6 +130,24 @@ const Footer = () => {
                 >
                   <Phone className="w-5 h-5" />
                   <span>(770) 676-0367</span>
+                </a>
+              </li>
+              <li>
+                <a href="tel:+18048451175" className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors">
+                  <Phone className="w-5 h-5" />
+                  <span>(804) 845-1175 | Main</span>
+                </a>
+              </li>
+               <li>
+                <a href="tel:+18048984314" className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors">
+                  <Phone className="w-5 h-5" />              
+                  <span>(804) 898-4314 | Sales & Finance</span>
+                </a>
+              </li>
+              <li>
+                <a href="tel:+18048984314" className="flex items-center gap-3 text-muted-foreground hover:text-primary transition-colors">
+                  <Phone className="w-5 h-5" />              
+                  <span>(646) 612-4993 | Man. Manager</span>
                 </a>
               </li>
               <li>

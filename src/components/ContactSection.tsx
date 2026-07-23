@@ -1,8 +1,8 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent } from "@/components/ui/card";
-import { MapPin, Phone, Mail, Clock, Send, Loader2 } from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card"; 
+import { Send, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -142,29 +142,6 @@ const ContactSection = () => {
     }
   };
 
-  const contactInfo = [
-    {
-      icon: MapPin,
-      title: "Visit Us",
-      details: ["1970 Main St East, Suite B12", "Snellville, GA 30078"],
-    },
-    {
-      icon: Phone,
-      title: "Call Us",
-      details: ["(770) 676-0367", "Mon-Sat: 9AM-7PM"],
-    },
-    {
-      icon: Mail,
-      title: "Email Us",
-      details: ["jscg@middlemanmotors.store"],
-    },
-    {
-      icon: Clock,
-      title: "Hours",
-      details: ["Mon-Sat: 9AM - 7PM", "Sunday: Closed"],
-    },
-  ];
-
   return (
     <section id="contact" className="py-20 bg-secondary/50">
       <div className="container mx-auto px-4">
@@ -181,36 +158,8 @@ const ContactSection = () => {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Contact Info Cards */}
-          <div className="lg:col-span-1 grid grid-cols-2 lg:grid-cols-1 gap-4">
-            {contactInfo.map((info, index) => (
-              <Card
-                key={info.title}
-                className="bg-card border-border hover:border-primary/50 transition-all duration-300 animate-slide-up"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <CardContent className="p-4 flex items-start gap-4">
-                  <div className="w-10 h-10 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0">
-                    <info.icon className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground mb-1">
-                      {info.title}
-                    </h4>
-                    {info.details.map((detail) => (
-                      <p key={detail} className="text-sm text-muted-foreground">
-                        {detail}
-                      </p>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-
-          {/* Contact Form */}
-          <Card className="lg:col-span-2 bg-card border-border">
+        <div className="max-w-4xl mx-auto">
+          <Card className="bg-card border-border">
             <CardContent className="p-6 md:p-8">
               <h3 className="font-heading font-semibold text-xl text-foreground mb-6">
                 Send Us a Message
@@ -331,7 +280,7 @@ const ContactSection = () => {
               </form>
             </CardContent>
           </Card>
-        </div>        
+        </div>
       </div>
     </section>
   );
