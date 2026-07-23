@@ -190,14 +190,7 @@ const Footer = () => {
               </a>
               <a href="#" className="hover:text-primary transition-colors">
                 Terms of Service
-              </a>
-              <a 
-                href="/auth" 
-                onClick={(e) => handleNavigation(e, '/auth', true)}
-                className="hover:text-primary transition-colors cursor-pointer"
-              >
-                Admin
-              </a>
+              </a>              
             </div>
           </div>
         </div>
