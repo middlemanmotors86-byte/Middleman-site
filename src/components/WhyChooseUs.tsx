@@ -39,7 +39,7 @@ const features = [
   {
     icon: Heart,
     title: "Community Focused",
-    description: "A portion of every sale supports local nonprofits like Urban Jungal.",
+    description: "We support our customers before, during and after a sale.",
   },
 ];
 
@@ -65,7 +65,7 @@ const WhyChooseUs = () => {
             Why Choose <span className="text-gradient-gold">Middleman Motors</span>?
           </h2>
           <p className="text-muted-foreground text-lg">
-            We're not just selling cars - we're building relationships. Here's what sets us apart from the rest.
+            We're not just selling cars - we're building relationships! Here's what sets us apart from the rest.
           </p>
         </div>
 

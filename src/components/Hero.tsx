@@ -69,41 +69,17 @@ const Hero = () => {
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 animate-slide-up" style={{ animationDelay: "0.6s" }}>
             <div className="flex items-center gap-3">
               <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
-                <Shield className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="font-semibold text-foreground">Quality Inspected</p>
-                <p className="text-sm text-muted-foreground">Every vehicle checked</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
-                <DollarSign className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="font-semibold text-foreground">No Hidden Fees</p>
-                <p className="text-sm text-muted-foreground">Transparent pricing</p>
-              </div>
-            </div>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
                 <Heart className="w-6 h-6 text-primary" />
               </div>
               <div>
                 <p className="font-semibold text-foreground">Community First</p>
-                <p className="text-sm text-muted-foreground">Supporting local causes</p>
+                <p className="text-sm text-muted-foreground">With Continued Support</p>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-        <div className="w-6 h-10 rounded-full border-2 border-primary/50 flex items-start justify-center p-2">
-          <div className="w-1.5 h-3 rounded-full bg-primary animate-pulse" />
-        </div>
-      </div>
     </section>
   );
 };
