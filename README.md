@@ -1,3 +1,4 @@
+![Middleman Motors](https://middleman-motors.middlemanmotors86.workers.dev/img/middlemanmotors.png)
 # 🚗 Middle Man Motors
 
 > **Safe, Reliable, and Affordable Vehicle Platform**  
