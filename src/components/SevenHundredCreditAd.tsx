@@ -47,7 +47,7 @@ const SevenHundredCreditAd = () => {
                 </li>
               </ul>
               <a
-                href="/700credit-quickqualify-guide.pdf"
+                href="/pdf/700credit-quickqualify-guide.pdf"
                 target="_blank"
                 rel="noopener"
                 className="mt-2 inline-block text-xs font-semibold text-primary underline underline-offset-4 hover:text-primary/80"

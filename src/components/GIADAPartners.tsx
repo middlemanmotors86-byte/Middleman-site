@@ -48,7 +48,7 @@ const partnerCategories: Category[] = [
     label: "Consumer Finance",
     partners: [
       { name: "OneMain Financial", phone: "770-841-5822", website: "onemainfinancial.com" },
-      { name: "Lendmark Financial Services", phone: "678-358-8706", website: "lendmarkfinancial.com", description: "50 locations in Georgia with fast and friendly service.", applicationPdf: "/lendmark-credit-application.pdf" },
+      { name: "Lendmark Financial Services", phone: "678-358-8706", website: "lendmarkfinancial.com", description: "50 locations in Georgia with fast and friendly service.", applicationPdf: "/pdf/lendmark-credit-application.pdf" },
       { name: "Professional Financial Services", phone: "(470) 345-6715", website: "pfs-corp.net", description: "Common Sense Loans At Uncommon Speed." },
       { name: "Ottomoto", phone: "770-406-8598", website: "ottomoto.net", description: "Vehicle financing platform connecting dealers with lenders." },
       { name: "International Credit", phone: "678-325-5154", website: "internationalcreditinc.com" },

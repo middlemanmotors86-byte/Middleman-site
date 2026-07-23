@@ -1,6 +1,6 @@
 import { Download, ScanLine, ShieldCheck, Smartphone, CheckCircle2, MessageSquare, Calendar, Car } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import qrCodeSrc from "@/assets/qr-700credit-softpull.png";
+import qrCodeSrc from "@/assets/QR-700credit-softpull.png";
 
 interface SevenHundredCreditQRProps {
   compact?: boolean;

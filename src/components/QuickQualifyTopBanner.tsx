@@ -35,7 +35,7 @@ const QuickQualifyTopBanner = () => {
               Pre-Qualify in 60s
             </Link>
             <a
-              href="/700credit-quickqualify-guide.pdf"
+              href="/pdf/700credit-quickqualify-guide.pdf"
               target="_blank"
               rel="noopener"
               className="inline-flex items-center gap-1.5 rounded-full border border-primary/50 bg-background/60 px-4 py-2 text-sm font-semibold text-foreground transition hover:bg-primary/10"

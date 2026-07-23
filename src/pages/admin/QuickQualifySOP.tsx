@@ -123,7 +123,7 @@ const QuickQualifySOP = () => {
           <div className="flex gap-2">
             <Button variant="outline" onClick={load} disabled={loading}>Refresh</Button>
             <Button asChild>
-              <a href="/700credit-quickqualify-guide.pdf" target="_blank" rel="noopener">
+              <a href="/pdf/700credit-quickqualify-guide.pdf" target="_blank" rel="noopener">
                 <FileDown className="w-4 h-4 mr-2" /> User Guide PDF
               </a>
             </Button>
