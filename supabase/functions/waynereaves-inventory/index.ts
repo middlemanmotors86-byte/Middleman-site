@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { XMLParser } from "https://esm.sh/fast-xml-parser@4.3.6";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
+import { normalizeInventoryRow, normalizeVehicle, toArray, type InventoryCacheRow } from "./lib.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -9,73 +10,202 @@ const corsHeaders = {
 };
 
 // Wayne Reaves public inventory export endpoints. The dealer ID controls which lot is returned.
-// Primary: XML export (no auth required, server-to-server).
 const WR_XML_FEED = (dealerId: string) =>
   `https://www.waynereaves.com/InventoryExport.aspx?DealerID=${encodeURIComponent(dealerId)}&Format=XML`;
-// Secondary mirror used by some Wayne Reaves Pro accounts.
 const WR_XML_FEED_ALT = (dealerId: string) =>
   `https://wreav.es/InventoryExport.aspx?DealerID=${encodeURIComponent(dealerId)}&Format=XML`;
+const FALLBACK_JSON_URL = 'https://middlemanmotors.com/inventory-fallback.json';
 
-function determineBadge(v: any): string {
-  const mileage = Number(v.mileage) || 0;
-  const price = Number(v.price) || 0;
-  const year = Number(v.year) || new Date().getFullYear();
-  const currentYear = new Date().getFullYear();
-  if (currentYear - year <= 1 && mileage < 20000) return 'Like New';
-  if (mileage < 30000) return 'Low Miles';
-  if (price > 0 && price < 20000) return 'Great Value';
-  if (v.certified) return 'Certified';
-  return 'Available';
+function jsonResponse(body: unknown, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+  });
 }
 
-function toArray<T>(x: T | T[] | undefined | null): T[] {
-  if (x === undefined || x === null) return [];
-  return Array.isArray(x) ? x : [x];
+function getSupabaseClient() {
+  const supabaseUrl = Deno.env.get('SUPABASE_URL') || Deno.env.get('VITE_SUPABASE_URL');
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || Deno.env.get('SUPABASE_SERVICE_ROLE_SECRET');
+  const anonKey = Deno.env.get('SUPABASE_ANON_KEY') || Deno.env.get('VITE_SUPABASE_PUBLISHABLE_KEY');
+
+  if (!supabaseUrl) {
+    return null;
+  }
+
+  return createClient(supabaseUrl, serviceRoleKey || anonKey || '', {
+    auth: { persistSession: false, autoRefreshToken: false },
+  });
 }
 
-function normalizeVehicle(v: any) {
-  const photos = toArray(v.Photos?.Photo ?? v.photos?.photo ?? v.Photo ?? v.photo)
-    .map((p: any) => {
-      if (typeof p === 'string') return { url: p };
-      return { url: p?.URL || p?.url || p?.Url || p?.['#text'] || '', caption: p?.caption };
-    })
-    .filter((p: any) => !!p.url);
+async function fetchInventoryRowsFromFeed(dealerId: string) {
+  const username = Deno.env.get('WAYNEREAVES_USERNAME');
+  const password = Deno.env.get('WAYNEREAVES_PASSWORD');
+  const requestHeaders: Record<string, string> = {
+    'Accept': 'application/xml,text/xml,*/*',
+    'User-Agent': 'MiddlemanMotors/1.0',
+  };
+  if (username && password) {
+    requestHeaders.Authorization = `Basic ${btoa(`${username}:${password}`)}`;
+  }
 
-  const features = toArray(v.Features?.Feature ?? v.features?.feature)
-    .map((f: any) => (typeof f === 'string' ? f : f?.['#text'] || f?.name))
-    .filter(Boolean);
+  const urls = [WR_XML_FEED(dealerId), WR_XML_FEED_ALT(dealerId)];
+  let xml = '';
+  let lastErr = '';
 
-  const year = v.Year || v.year;
-  const make = v.Make || v.make;
-  const model = v.Model || v.model;
-  const price = Number(v.SellingPrice || v.Price || v.price || 0);
-  const mileage = Number(v.Mileage || v.mileage || 0);
-  const stock = v.StockNumber || v.stockNumber || v.Stock || v.stock || v.ID || v.id;
+  for (const url of urls) {
+    try {
+      const response = await fetch(url, { headers: requestHeaders });
+      if (!response.ok) {
+        lastErr = `${response.status} ${response.statusText} @ ${url}`;
+        console.log('WR feed non-OK:', lastErr);
+        continue;
+      }
+
+      const body = await response.text();
+      const trimmed = body?.trim() || '';
+      const looksLikeXml = trimmed.startsWith('<?xml') ||
+        trimmed.includes('<Inventory') ||
+        trimmed.includes('<inventory') ||
+        trimmed.includes('<Vehicles') ||
+        trimmed.includes('<vehicles') ||
+        trimmed.includes('<Vehicle') ||
+        trimmed.includes('<vehicle');
+
+      if (looksLikeXml) {
+        xml = body;
+        break;
+      }
+
+      lastErr = `Non-XML response from ${url}`;
+      console.log('WR feed returned non-XML content:', lastErr);
+    } catch (error) {
+      lastErr = error instanceof Error ? error.message : 'Unknown fetch error';
+      console.log('WR feed fetch error:', lastErr);
+    }
+  }
+
+  if (xml) {
+    const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '' });
+    const parsed = parser.parse(xml);
+    const root = parsed?.Inventory || parsed?.inventory || parsed?.Vehicles || parsed?.vehicles || parsed;
+    const rawList = toArray(root?.Vehicle || root?.vehicle || root?.Listing || root?.listing || []);
+
+    return {
+      source: 'wayne-reaves',
+      rows: rawList.map((item) => normalizeInventoryRow(item as Record<string, unknown>, dealerId)),
+      message: 'Loaded inventory from Wayne Reaves XML feed.',
+      error: '',
+    };
+  }
+
+  try {
+    const fallbackResponse = await fetch(FALLBACK_JSON_URL, { headers: { Accept: 'application/json' } });
+    if (!fallbackResponse.ok) {
+      throw new Error(`Fallback fetch failed with ${fallbackResponse.status}`);
+    }
+
+    const fallbackData = await fallbackResponse.json();
+    const fallbackList = Array.isArray(fallbackData)
+      ? fallbackData
+      : Array.isArray(fallbackData?.vehicles)
+        ? fallbackData.vehicles
+        : Array.isArray(fallbackData?.inventory)
+          ? fallbackData.inventory
+          : [];
+
+    return {
+      source: 'inventory-fallback',
+      rows: fallbackList.map((item: Record<string, unknown>) => normalizeInventoryRow(item, dealerId)),
+      message: 'Loaded inventory from fallback JSON feed.',
+      error: '',
+    };
+  } catch (error) {
+    return {
+      source: 'wayne-reaves-unavailable',
+      rows: [],
+      message: `Wayne Reaves feed temporarily unavailable. ${lastErr}`,
+      error: error instanceof Error ? error.message : 'Unknown error',
+    };
+  }
+}
+
+function rowToVehicle(row: InventoryCacheRow) {
+  const normalizedBadge = typeof row.badge === 'string' && /fallback|demo|available|in stock/i.test(row.badge)
+    ? null
+    : row.badge;
+  const mileageValue = typeof row.mileage === 'number' ? row.mileage : Number(String(row.mileage || '').replace(/,/g, '').trim());
+  const mileageText = Number.isFinite(mileageValue) && mileageValue > 1000 ? mileageValue.toLocaleString() : 'Mileage TBD';
 
   return {
-    id: stock || v.VIN || v.vin,
-    name: `${year || ''} ${make || ''} ${model || ''}`.trim(),
-    price,
-    image: photos[0]?.url || '',
-    year,
-    mileage: mileage.toLocaleString(),
-    fuel: v.FuelType || v.fuelType || 'Gasoline',
-    badge: determineBadge({ year, mileage, price, certified: v.Certified }),
-    transmission: v.Transmission || v.transmission || 'Automatic',
-    engine: v.Engine || v.engine || '',
-    drivetrain: v.Drivetrain || v.DriveTrain || v.drivetrain || 'FWD',
-    mpgCity: v.MPGCity || v.mpgCity || null,
-    mpgHighway: v.MPGHighway || v.mpgHighway || null,
-    horsepower: v.Horsepower || v.horsepower || null,
-    seating: v.Seating || v.seating || 5,
-    warranty: v.Warranty || 'Extended Available',
-    vin: v.VIN || v.vin,
-    exteriorColor: v.ExteriorColor || v.exteriorColor,
-    interiorColor: v.InteriorColor || v.interiorColor,
-    stockNumber: stock,
-    description: v.Description || v.description || '',
-    features,
-    photos,
+    id: row.stock_number || row.vin,
+    name: [row.year, row.make, row.model].filter(Boolean).join(' ').trim(),
+    price: row.price ?? 0,
+    image: row.image || '',
+    year: row.year,
+    mileage: mileageText,
+    fuel: row.fuel || 'Gasoline',
+    badge: normalizedBadge || 'Available',
+    transmission: row.transmission || 'Automatic',
+    engine: row.engine || '',
+    drivetrain: row.drivetrain || 'FWD',
+    mpgCity: null,
+    mpgHighway: null,
+    horsepower: null,
+    seating: 5,
+    warranty: 'Extended Available',
+    vin: row.vin,
+    exteriorColor: row.color_exterior,
+    interiorColor: row.color_interior,
+    stockNumber: row.stock_number,
+    description: row.description || '',
+    features: row.features || [],
+    photos: row.photos || [],
+  };
+}
+
+async function listFromCache(client: any) {
+  const { data, error } = await client.from('inventory_cache').select('*').order('price', { ascending: true, nullsFirst: false });
+  if (error) throw error;
+
+  return (data || []).map((row: InventoryCacheRow) => rowToVehicle(row));
+}
+
+async function detailFromCache(client: any, vehicleId: string | number) {
+  const { data, error } = await client.from('inventory_cache').select('*').order('price', { ascending: true, nullsFirst: false });
+  if (error) throw error;
+
+  const target = String(vehicleId).trim();
+  const matches = (data || []).filter((row: any) => {
+    return String(row.vin) === target || String(row.stock_number) === target || String(row.id) === target;
+  });
+
+  return matches.map((row: InventoryCacheRow) => rowToVehicle(row));
+}
+
+async function syncCache(client: any, dealerId: string) {
+  const feed = await fetchInventoryRowsFromFeed(dealerId);
+  if (!feed.rows.length) {
+    return {
+      success: true,
+      total: 0,
+      source: feed.source,
+      message: feed.message,
+    };
+  }
+
+  const vehiclesToUpsert = feed.rows.map((row: InventoryCacheRow) => ({
+    ...row,
+    updated_at: new Date().toISOString(),
+  }));
+
+  const { error: upsertError } = await client.from('inventory_cache').upsert(vehiclesToUpsert, { onConflict: 'vin' });
+  if (upsertError) throw upsertError;
+
+  return {
+    success: true,
+    total: vehiclesToUpsert.length,
+    source: feed.source,
+    message: feed.message,
   };
 }
 
@@ -85,84 +215,86 @@ serve(async (req) => {
   }
 
   try {
-    // Public inventory feed — Wayne Reaves XML export is designed for public consumption
-    // and powers the customer-facing inventory pages. No auth required.
+    const dealerId = Deno.env.get('WAYNEREAVES_DEALER_ID') || '47651';
+    const client = getSupabaseClient();
 
-
-    const dealerId = Deno.env.get('WAYNEREAVES_DEALER_ID');
     if (!dealerId) {
-      return new Response(JSON.stringify({
-        success: true, vehicles: [], isDemo: true,
+      return jsonResponse({
+        success: true,
+        vehicles: [],
+        isDemo: true,
         message: 'Wayne Reaves dealer ID not configured.',
-      }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      });
     }
 
-    const { action, vehicleId } = await req.json().catch(() => ({ action: 'list' }));
+    let body: Record<string, unknown> = {};
+    try {
+      body = await req.json() as Record<string, unknown>;
+    } catch {
+      body = { action: 'list' };
+    }
+
+    const action = String(body.action || 'list');
+    const vehicleId = body.vehicleId;
     console.log(`Wayne Reaves request: action=${action} dealer=${dealerId}`);
 
-    // Fetch XML feed (try primary then alt)
-    const urls = [WR_XML_FEED(dealerId), WR_XML_FEED_ALT(dealerId)];
-    let xml = '';
-    let lastErr = '';
-    for (const url of urls) {
-      try {
-        const r = await fetch(url, {
-          headers: { 'Accept': 'application/xml,text/xml,*/*', 'User-Agent': 'MiddlemanMotors/1.0' },
-        });
-        if (r.ok) {
-          xml = await r.text();
-          if (xml && xml.trim().length > 0) break;
-        } else {
-          lastErr = `${r.status} ${r.statusText} @ ${url}`;
-          console.log('WR feed non-OK:', lastErr);
-        }
-      } catch (e) {
-        lastErr = (e as Error).message;
-        console.log('WR feed fetch error:', lastErr);
+    if (!client) {
+      return jsonResponse({
+        success: true,
+        vehicles: [],
+        total: 0,
+        isDemo: true,
+        source: 'inventory-db-unavailable',
+        message: 'Supabase client configuration is unavailable.',
+      });
+    }
+
+    if (action === 'sync') {
+      const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || Deno.env.get('SUPABASE_SERVICE_ROLE_SECRET');
+      if (!serviceRoleKey) {
+        return jsonResponse({
+          success: false,
+          vehicles: [],
+          message: 'Service role key is not configured for inventory sync.',
+        }, 500);
       }
+
+      const syncResult = await syncCache(client, dealerId);
+      return jsonResponse({
+        success: true,
+        vehicles: [],
+        total: syncResult.total,
+        source: syncResult.source,
+        message: syncResult.message,
+      });
     }
 
-    if (!xml) {
-      // Feed unreachable — return empty success so client falls back to mock inventory gracefully.
-      console.log('WR feed unavailable, returning empty demo response:', lastErr);
-      return new Response(JSON.stringify({
-        success: true, vehicles: [], total: 0, isDemo: true,
-        source: 'wayne-reaves-unavailable',
-        message: `Wayne Reaves feed temporarily unavailable. ${lastErr}`,
-      }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-    }
-
-    const parser = new XMLParser({ ignoreAttributes: false, attributeNamePrefix: '' });
-    const parsed = parser.parse(xml);
-
-    // Wayne Reaves feed nests vehicles under Inventory > Vehicle (case may vary)
-    const root = parsed?.Inventory || parsed?.inventory || parsed?.Vehicles || parsed?.vehicles || parsed;
-    const rawList = toArray(root?.Vehicle || root?.vehicle || root?.Listing || root?.listing || []);
-
-    let vehicles = rawList.map(normalizeVehicle);
-
+    let vehicles: unknown[] = [];
     if (action === 'detail' && vehicleId) {
-      vehicles = vehicles.filter(v =>
-        String(v.id) === String(vehicleId) ||
-        String(v.stockNumber) === String(vehicleId) ||
-        String(v.vin) === String(vehicleId)
-      );
+      vehicles = await detailFromCache(client, String(vehicleId));
+    } else {
+      vehicles = await listFromCache(client);
     }
 
-    return new Response(JSON.stringify({
+    return jsonResponse({
       success: true,
       vehicles,
       total: vehicles.length,
       isDemo: false,
-      source: 'wayne-reaves',
-    }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-
+      source: 'inventory-db',
+    });
   } catch (error) {
     console.error('Wayne Reaves function error:', error);
-    return new Response(JSON.stringify({
+    const message = error instanceof Error
+      ? error.message
+      : typeof error === 'string'
+        ? error
+        : JSON.stringify(error);
+
+    return jsonResponse({
       success: false,
       vehicles: [],
-      error: error instanceof Error ? error.message : 'Unknown error',
-    }), { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      error: message || 'Unknown error',
+    }, 500);
   }
 });

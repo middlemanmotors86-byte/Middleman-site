@@ -12,5 +12,8 @@ export const toPublicPrice = (rawPrice: number): number => {
 
 export const formatPublicPrice = (rawPrice: number): string => {
   const adjusted = toPublicPrice(rawPrice);
+  if (!rawPrice || rawPrice <= 0) {
+    return 'Call for Price';
+  }
   return `$${adjusted.toLocaleString()}`;
 };

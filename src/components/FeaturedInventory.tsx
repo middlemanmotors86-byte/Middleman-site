@@ -2,11 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Fuel, Gauge, ChevronRight, Scale, Check } from "lucide-react";
-import { useComparisonStore } from "@/stores/comparisonStore";
-import { vehicleInventory, Vehicle } from "@/types/vehicle";
+import { useComparisonStore } from "@/stores/comparisonStore"; // Import Vehicle from the service file
+import { Vehicle } from "@/services/inventoryService";
 import { useToast } from "@/hooks/use-toast";
 import { useNavigate } from "react-router-dom";
 import { formatPublicPrice } from "@/lib/publicPricing";
+import { normalizeInventoryBadge } from "@/lib/inventoryDisplay";
 import { useDMSInventory } from "@/hooks/useDMSInventory";
 
 const FeaturedInventory = () => {
@@ -14,9 +15,9 @@ const FeaturedInventory = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { data } = useDMSInventory();
-
-  // Prefer live Wayne Reaves inventory; fall back to local sample if unavailable.
-  const source = (data?.vehicles && data.vehicles.length > 0 ? data.vehicles : vehicleInventory) as Vehicle[];
+  
+  // useDMSInventory now handles the fallback logic internally
+  const source = (data?.vehicles || []) as Vehicle[];
   const featuredCars = source.slice(0, 4);
 
 
@@ -63,6 +64,7 @@ const FeaturedInventory = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {featuredCars.map((car, index) => {
             const inComparison = isInComparison(car.id);
+            const displayBadge = normalizeInventoryBadge(car.badge);
             
             return (
               <Card
@@ -79,9 +81,11 @@ const FeaturedInventory = () => {
                     alt={car.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                   />
-                  <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground">
-                    {car.badge}
-                  </Badge>
+                  {displayBadge && (
+                    <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground">
+                      {displayBadge}
+                    </Badge>
+                  )}
                   
                   {/* Compare button overlay */}
                   <button

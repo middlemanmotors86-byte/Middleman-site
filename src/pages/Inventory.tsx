@@ -25,10 +25,11 @@ import {
   Grid3X3,
   List,
 } from "lucide-react";
-import { vehicleInventory, Vehicle } from "@/types/vehicle";
+import { Vehicle } from "@/services/inventoryService"; // Import Vehicle from the service file
 import { useComparisonStore } from "@/stores/comparisonStore";
 import { useToast } from "@/hooks/use-toast";
 import { formatPublicPrice, toPublicPrice } from "@/lib/publicPricing";
+import { formatInventoryMileage, normalizeInventoryBadge, parseInventoryMileage } from "@/lib/inventoryDisplay";
 import { useDMSInventory } from "@/hooks/useDMSInventory";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -42,11 +43,9 @@ const Inventory = () => {
   const { toast } = useToast();
   const { data: dmsData, isLoading: dmsLoading } = useDMSInventory();
 
-  // Prefer live Wayne Reaves inventory; fall back to local sample only when the feed is empty.
   const inventorySource = useMemo<Vehicle[]>(() => {
-    const live = dmsData?.vehicles as Vehicle[] | undefined;
-    if (live && live.length > 0) return live;
-    return vehicleInventory;
+    // useDMSInventory now handles the fallback logic internally
+    return dmsData?.vehicles || [];
   }, [dmsData]);
   const isLive = !!(dmsData?.vehicles && dmsData.vehicles.length > 0 && !dmsData.isDemo);
 
@@ -68,8 +67,7 @@ const Inventory = () => {
 
   // Parse mileage string to number for filtering
   const parseMileage = (mileage: string | number): number => {
-    if (typeof mileage === "number") return mileage;
-    return parseInt(String(mileage).replace(/,/g, "")) || 0;
+    return parseInventoryMileage(mileage);
   };
 
   // Filter and sort vehicles
@@ -409,6 +407,8 @@ const Inventory = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {filteredVehicles.map((car, index) => {
                 const inComparison = isInComparison(car.id);
+                const displayBadge = normalizeInventoryBadge(car.badge);
+                const mileageDisplay = formatInventoryMileage(car.mileage);
 
                 return (
                   <Card
@@ -424,9 +424,11 @@ const Inventory = () => {
                         alt={car.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
-                      <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground">
-                        {car.badge}
-                      </Badge>
+                      {displayBadge && (
+                        <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground">
+                          {displayBadge}
+                        </Badge>
+                      )}
                       <button
                         onClick={() => handleCompareClick(car)}
                         className={`absolute top-3 right-3 w-9 h-9 rounded-full flex items-center justify-center transition-all duration-300 ${
@@ -452,7 +454,7 @@ const Inventory = () => {
                         </div>
                         <div className="flex items-center gap-1">
                           <Gauge className="w-4 h-4" />
-                          <span>{car.mileage} mi</span>
+                          <span>{mileageDisplay} mi</span>
                         </div>
                         <div className="flex items-center gap-1">
                           <Fuel className="w-4 h-4" />
@@ -478,6 +480,8 @@ const Inventory = () => {
             <div className="space-y-4">
               {filteredVehicles.map((car, index) => {
                 const inComparison = isInComparison(car.id);
+                const displayBadge = normalizeInventoryBadge(car.badge);
+                const mileageDisplay = formatInventoryMileage(car.mileage);
 
                 return (
                   <Card
@@ -494,9 +498,11 @@ const Inventory = () => {
                           alt={car.name}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
-                        <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground">
-                          {car.badge}
-                        </Badge>
+                        {displayBadge && (
+                          <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground">
+                            {displayBadge}
+                          </Badge>
+                        )}
                       </div>
 
                       <CardContent className="p-6 flex-1 flex flex-col justify-between">
@@ -514,7 +520,7 @@ const Inventory = () => {
                             </div>
                             <div className="flex items-center gap-1">
                               <Gauge className="w-4 h-4" />
-                              <span>{car.mileage} mi</span>
+                              <span>{mileageDisplay} mi</span>
                             </div>
                             <div className="flex items-center gap-1">
                               <Fuel className="w-4 h-4" />

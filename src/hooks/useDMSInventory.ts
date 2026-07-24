@@ -1,52 +1,64 @@
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { fetchDMSInventory, fetchDMSVehicleDetail, syncDMSInventory, DMSVehicle, DMSResponse } from "@/lib/dms";
-import { toast } from "sonner";
+import { useEffect, useState } from "react";
+import { fetchDMSInventory, syncDMSInventory, type DMSVehicle } from "@/lib/dms";
 
-/**
- * Hook for fetching DMS inventory with caching and auto-refresh
- */
-export function useDMSInventory() {
-  return useQuery<DMSResponse>({
-    queryKey: ['dms-inventory'],
-    queryFn: fetchDMSInventory,
-    staleTime: 5 * 60 * 1000, // Consider data fresh for 5 minutes
-    refetchInterval: 10 * 60 * 1000, // Auto-refresh every 10 minutes
-    retry: 2,
-  });
+interface DMSInventoryData {
+  vehicles: DMSVehicle[];
+  isDemo: boolean;
+  source: string; // e.g., 'wayne-reaves' or 'local-fallback'
 }
 
-/**
- * Hook for fetching single vehicle details
- */
-export function useDMSVehicleDetail(vehicleId: string | number | null) {
-  return useQuery<DMSVehicle | null>({
-    queryKey: ['dms-vehicle', vehicleId],
-    queryFn: () => vehicleId ? fetchDMSVehicleDetail(vehicleId) : null,
-    enabled: !!vehicleId,
-    staleTime: 5 * 60 * 1000,
-  });
-}
+export const useDMSInventory = () => {
+  const [data, setData] = useState<DMSInventoryData | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isRefetching, setIsRefetching] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
 
-/**
- * Hook for manual inventory sync
- */
-export function useDMSSync() {
-  const queryClient = useQueryClient();
+  const loadInventory = async () => {
+    setIsLoading(true);
+    setIsRefetching(true);
+    setError(null);
+    try {
+      const response = await fetchDMSInventory();
+      const fetchedVehicles = response.vehicles ?? [];
 
-  const sync = async () => {
-    toast.loading('Syncing inventory...');
-    const result = await syncDMSInventory();
-    
-    if (result.success) {
-      toast.success(result.message);
-      // Invalidate inventory cache to trigger refetch
-      queryClient.invalidateQueries({ queryKey: ['dms-inventory'] });
-    } else {
-      toast.error('Sync failed', { description: result.message });
+      setData({
+        vehicles: fetchedVehicles as DMSVehicle[],
+        isDemo: Boolean(response.isDemo),
+        source: response.isDemo ? 'demo-fallback' : 'wayne-reaves',
+      });
+
+      if (!response.success) {
+        setError(new Error(response.error || response.message || 'Failed to load inventory'));
+      }
+    } catch (err) {
+      console.error("Failed to load DMS inventory:", err);
+      setError(err instanceof Error ? err : new Error("Failed to load inventory"));
+      setData({
+        vehicles: [],
+        isDemo: true,
+        source: 'load-error',
+      });
+    } finally {
+      setIsLoading(false);
+      setIsRefetching(false);
     }
-    
+  };
+
+  useEffect(() => {
+    loadInventory();
+  }, []);
+
+  return { data, isLoading, isRefetching, error, refetch: loadInventory };
+};
+
+export const useDMSSync = () => {
+  const sync = async () => {
+    const result = await syncDMSInventory();
+    if (!result.success) {
+      throw new Error(result.message);
+    }
     return result;
   };
 
   return { sync };
-}
+};
