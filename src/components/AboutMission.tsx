@@ -10,7 +10,7 @@ const AboutMission = () => {
   return (
     <section id="about" className="py-20 bg-secondary/50">
       <div className="container mx-auto px-4">
-        <div className="max-w-3xl mx-auto">
+        <div className="max-w-4xl mx-auto">
           {/* Left Content */}
           <div className="text-center">
             <span className="text-primary font-medium tracking-wider uppercase text-sm">
@@ -31,12 +31,12 @@ const AboutMission = () => {
             </p>
 
             {/* Certifications */}
-            <div className="mb-8 p-2 bg-card border border-border rounded-xl">
-              <div className="flex items-center gap-2 mb-3">
+            <div className="mb-8 p-4 md:p-2 lg:p-6 bg-card border border-border rounded-xl">
+              <div className="flex items-center justify-center gap-2 mb-3">
                 <Shield className="w-5 h-5 text-primary" />
                 <h3 className="font-heading font-semibold text-foreground">Certified & Registered</h3>
               </div>
-              <div className="flex flex-wrap gap-2 mb-4">
+              <div className="flex flex-wrap gap-2 mb-4 items-center justify-center">
                 {certifications.map((cert) => (
                   <span
                     key={cert}
