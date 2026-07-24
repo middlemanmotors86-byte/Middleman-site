@@ -11,15 +11,20 @@ export const normalizeInventoryBadge = (badge?: string | null): string | null =>
 
 export const formatInventoryMileage = (mileage: number | string | null | undefined): string => {
   if (mileage === null || mileage === undefined || mileage === "") {
-    return "Mileage TBD";
+    return "0";
   }
 
   let numericMileage = typeof mileage === "number"
     ? mileage
     : Number(String(mileage).replace(/,/g, "").trim());
 
-  if (!Number.isFinite(numericMileage) || numericMileage <= 0) {
-    return "Mileage TBD";
+  if (!Number.isFinite(numericMileage) || numericMileage < 0) {
+    return "0";
+  }
+
+  // If Wayne Reaves feed stored mileage in thousands (e.g. 17, 16, 20), scale it up:
+  if (numericMileage > 0 && numericMileage < 1000) {
+    numericMileage *= 1000;
   }
 
   return numericMileage.toLocaleString();
@@ -34,8 +39,13 @@ export const parseInventoryMileage = (mileage: number | string | null | undefine
     ? mileage
     : Number(String(mileage).replace(/,/g, "").trim());
 
-  if (!Number.isFinite(numericMileage) || numericMileage <= 0) {
+  if (!Number.isFinite(numericMileage) || numericMileage < 0) {
     return 0;
+  }
+
+  // Scale up feed values under 1000 to actual mileage
+  if (numericMileage > 0 && numericMileage < 1000) {
+    numericMileage *= 1000;
   }
 
   return numericMileage;

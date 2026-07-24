@@ -177,14 +177,14 @@ function rowToVehicle(row: InventoryCacheRow) {
 }
 
 async function listFromCache(client: any) {
-  const { data, error } = await client.from('inventory_cache').select('*').order('price', { ascending: true, nullsFirst: false });
+  const { data, error } = await client.from('inventory').select('*').order('price', { ascending: true, nullsFirst: false });
   if (error) throw error;
 
   return (data || []).map((row: InventoryCacheRow) => rowToVehicle(row));
 }
 
 async function detailFromCache(client: any, vehicleId: string | number) {
-  const { data, error } = await client.from('inventory_cache').select('*').order('price', { ascending: true, nullsFirst: false });
+  const { data, error } = await client.from('inventory').select('*').order('price', { ascending: true, nullsFirst: false });
   if (error) throw error;
 
   const target = String(vehicleId).trim();

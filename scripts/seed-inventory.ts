@@ -60,7 +60,12 @@ async function seedDatabase() {
 
     const price = parseNumber(v.price || v.SellingPrice || v.Price || v.retailPrice || v.salePrice || v.SalePrice || 0);
     const rawMileage = parseNumber(v.mileage || v.Mileage || v.Odometer || v.odometer || 0);
-
+    
+    let mileage = rawMileage;
+    // If mileage is passed in thousands (e.g. 17, 16, 26), scale to actual miles
+    if (mileage > 0 && mileage < 1000) {
+      mileage *= 1000;
+    }
     let rawPhotos = v.photos || v.Photos || v.images || v.Images || [];
     if (rawPhotos?.Photo) rawPhotos = rawPhotos.Photo;
     if (rawPhotos?.Image) rawPhotos = rawPhotos.Image;
@@ -81,7 +86,7 @@ async function seedDatabase() {
       make,
       model,
       price,
-      mileage: rawMileage,
+      mileage: mileage,
       fuel: v.fuel || v.FuelType || v.fuelType || 'Gasoline',
       transmission: v.transmission || v.Transmission || 'Automatic',
       engine: v.engine || v.Engine || '',

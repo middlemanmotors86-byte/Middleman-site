@@ -111,7 +111,22 @@ export function normalizeInventoryRow(value: Record<string, unknown>, dealerId =
   const make = asString(source.Make ?? source.make);
   const model = asString(source.Model ?? source.model);
   const price = asNumber(source.SellingPrice ?? source.Price ?? source.price);
-  const mileage = asNumber(source.Mileage ?? source.mileage);
+  // Check common XML feed tags for mileage (Odometer, Miles, Mileage, etc.)
+  let rawMileage = asNumber(
+    source.Odometer ??
+      source.odometer ??
+      source.Miles ??
+      source.miles ??
+      source.Mileage ??
+      source.mileage ??
+      source.OdometerReading,
+  );
+
+  // If Wayne Reaves passes mileage in thousands (e.g. 17, 16, 26), scale to actual miles
+  if (rawMileage !== undefined && rawMileage > 0 && rawMileage < 1000) {
+    rawMileage *= 1000;
+  }
+  const mileage = rawMileage;
   const fuel = asString(source.FuelType ?? source.fuelType ?? source.Fuel);
   const transmission = asString(source.Transmission ?? source.transmission);
   const engine = asString(source.Engine ?? source.engine);
@@ -145,14 +160,27 @@ export function normalizeInventoryRow(value: Record<string, unknown>, dealerId =
 }
 
 export function normalizeVehicle(row: InventoryCacheRow) {
-  const mileageText = typeof row.mileage === "number" ? row.mileage.toLocaleString() : row.mileage || "";
+  let rawMileage =
+    typeof row.mileage === "number"
+      ? row.mileage
+      : Number(String(row.mileage || "").replace(/,/g, "").trim());
+
+  let mileageText = "0";
+
+  if (Number.isFinite(rawMileage) && rawMileage > 0) {
+    // Safety check if unscaled mileage made it into the DB table
+    if (rawMileage < 1000) {
+      rawMileage *= 1000;
+    }
+    mileageText = rawMileage.toLocaleString();
+  }
   return {
     id: row.stock_number || row.vin,
     name: [row.year, row.make, row.model].filter(Boolean).join(" ").trim(),
-    price: row.price ?? 0,
+    price: Number(row.price ?? 0),
     image: row.image || "",
     year: row.year,
-    mileage: mileageText,
+    mileage: mileageText, // Formats as '17,000' so the UI can append 'mi' seamlessly
     fuel: row.fuel || "Gasoline",
     badge: row.badge || "Available",
     transmission: row.transmission || "Automatic",
