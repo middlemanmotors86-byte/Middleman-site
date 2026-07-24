@@ -1,4 +1,4 @@
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useNavigate, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -21,6 +21,7 @@ import {
   Plug,
   Search,
   Archive,
+  Menu,
   Database,
   Contact,
   Zap,
@@ -29,6 +30,12 @@ import {
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 interface AdminLayoutProps {
   children: ReactNode;
@@ -58,10 +65,68 @@ const navItems = [
   { title: "Manage Admins", href: "/admin/users", icon: Users, financeOk: false },
 ];
 
+const SidebarContent = ({ onSignOut, onNavigate }: { onSignOut: () => void; onNavigate: () => void }) => {
+  const { user, isAdmin } = useAuth();
+  const location = useLocation();
+  const visibleNav = isAdmin ? navItems : navItems.filter((i) => i.financeOk);
+
+  return (
+    <div className="flex flex-col h-full bg-card text-foreground">
+      <div className="p-6 border-b border-border">
+        <h1 className="text-xl font-bold text-foreground">Admin Panel</h1>
+        <p className="text-sm text-muted-foreground truncate">{user?.email}</p>
+      </div>
+
+      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+        {visibleNav.map((item) => {
+          const isActive = location.pathname === item.href;
+          return (
+            <Link
+              key={item.href}
+              to={item.href}
+              onClick={onNavigate}
+              className={cn(
+                "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+                isActive
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:bg-muted hover:text-foreground"
+              )}
+            >
+              <item.icon className="h-5 w-5" />
+              {item.title}
+            </Link>
+          );
+        })}
+      </nav>
+
+      <div className="p-4 border-t border-border space-y-2">
+        <Link
+          to="/"
+          onClick={onNavigate}
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors w-full"
+        >
+          <ArrowLeft className="h-5 w-5" />
+          Back to Website
+        </Link>
+        <Button
+          variant="ghost"
+          className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
+          onClick={() => { onSignOut(); onNavigate(); }}
+        >
+          <LogOut className="h-5 w-5" />
+          Sign Out
+        </Button>
+      </div>
+    </div>
+  );
+};
+
 export function AdminLayout({ children, allowFinance = false }: AdminLayoutProps) {
   const { user, isAdmin, isFinance, isLoading, signOut } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const isMobile = useIsMobile();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const hasAccess = isAdmin || (allowFinance && isFinance);
 
@@ -94,61 +159,40 @@ export function AdminLayout({ children, allowFinance = false }: AdminLayoutProps
     return null;
   }
 
-  // Finance-only users see only the credit applications nav item
-  const visibleNav = isAdmin ? navItems : navItems.filter((i) => i.financeOk);
+  if (isMobile) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b bg-card px-4">
+          <Sheet open={isSidebarOpen} onOpenChange={setIsSidebarOpen}>
+            <SheetTrigger asChild>
+              <Button size="icon" variant="outline">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">Toggle Menu</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="p-0 w-72">
+              <SidebarContent onSignOut={handleSignOut} onNavigate={() => setIsSidebarOpen(false)} />
+            </SheetContent>
+          </Sheet>
+          <h1 className="text-lg font-semibold">Admin</h1>
+        </header>
+        <main className="p-4 sm:p-6">
+          {children}
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex bg-background">
       {/* Sidebar */}
-      <aside className="w-64 border-r border-border bg-card flex flex-col">
-        <div className="p-6 border-b border-border">
-          <h1 className="text-xl font-bold text-foreground">Admin Panel</h1>
-          <p className="text-sm text-muted-foreground truncate">{user.email}</p>
-        </div>
-
-        <nav className="flex-1 p-4 space-y-1">
-          {visibleNav.map((item) => {
-            const isActive = location.pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                to={item.href}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                  isActive
-                    ? "bg-primary text-primary-foreground"
-                    : "text-muted-foreground hover:bg-muted hover:text-foreground"
-                )}
-              >
-                <item.icon className="h-5 w-5" />
-                {item.title}
-              </Link>
-            );
-          })}
-        </nav>
-
-        <div className="p-4 border-t border-border space-y-2">
-          <Link
-            to="/"
-            className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors w-full"
-          >
-            <ArrowLeft className="h-5 w-5" />
-            Back to Website
-          </Link>
-          <Button
-            variant="ghost"
-            className="w-full justify-start gap-3 text-muted-foreground hover:text-foreground"
-            onClick={handleSignOut}
-          >
-            <LogOut className="h-5 w-5" />
-            Sign Out
-          </Button>
-        </div>
+      <aside className="w-64 border-r border-border flex-shrink-0">
+        <SidebarContent onSignOut={handleSignOut} onNavigate={() => {}} />
       </aside>
 
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
-        <div className="p-8">
+        <div className="p-6 lg:p-8">
           {children}
         </div>
       </main>
