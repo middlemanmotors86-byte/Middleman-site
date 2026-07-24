@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Menu, X, Phone, MapPin, ShoppingBag, Scale, FileDown, ChevronDown, Heart, Users, LucideIcon } from "lucide-react";
+import { Link } from "react-router-dom";
 import { CartDrawer } from "@/components/CartDrawer";
 import { useComparisonStore } from "@/stores/comparisonStore";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
 
 type NavLink = {
   label: string;
@@ -16,6 +18,7 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const navRef = useRef<HTMLElement>(null);
   
+  const { user, isAdmin, signOut } = useAuth();
   // Mobile accordion state switches
   const [mobileFinancingOpen, setMobileFinancingOpen] = useState(false);
   const [mobileExploreOpen, setMobileExploreOpen] = useState(false);
@@ -205,7 +208,21 @@ const Navbar = () => {
 
             {/* Action Group */}
             <div className="flex items-center gap-3 ml-2">
-              <CartDrawer />              
+              <CartDrawer />
+              {user && isAdmin && (
+                <Button asChild variant="ghost" size="sm">
+                  <Link to="/admin">Admin</Link>
+                </Button>
+              )}
+              {user ? (
+                <Button variant="outline" size="sm" onClick={signOut}>
+                  Sign Out
+                </Button>
+              ) : (
+                <Button asChild size="sm">
+                  <Link to="/auth">Sign In</Link>
+                </Button>
+              )}
             </div>
           </div>
 
@@ -318,9 +335,22 @@ const Navbar = () => {
               {/* Mobile Bottom Action Row */}
               <div className="flex items-center gap-4 mt-2 pt-2 border-t border-border">
                 <CartDrawer />
-                <Button variant="gold" className="flex-1" onClick={() => { navigate("/quick-qualify"); setIsOpen(false); }}>
-                  Pre-Qualify in 60s
-                </Button>
+                {user ? (
+                  <Button variant="outline" className="flex-1" onClick={() => { signOut(); setIsOpen(false); }}>
+                    Sign Out
+                  </Button>
+                ) : (
+                  <Button variant="gold" className="flex-1" onClick={() => { navigate("/auth"); setIsOpen(false); }}>
+                    Sign In
+                  </Button>
+                )}
+              </div>
+              <div className="flex items-center gap-4 mt-2">
+                {user && isAdmin && (
+                  <Button variant="default" className="flex-1" onClick={() => { navigate("/admin"); setIsOpen(false); }}>
+                    Admin Dashboard
+                  </Button>
+                )}
               </div>
             </div>
           </div>

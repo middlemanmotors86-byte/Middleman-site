@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate, useSearchParams, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useSearchParams, Link, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -19,10 +19,12 @@ const authSchema = z.object({
 
 export default function Auth() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
   const rawNext = searchParams.get("next");
-  // Only allow same-origin relative paths as the post-auth redirect target.
-  const nextPath = rawNext && rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : null;
+  // Sanitize the `next` parameter to only allow same-origin relative paths.
+  // This prevents open redirect vulnerabilities.
+  const nextPath = rawNext && /^\/[^/].*/.test(rawNext) ? rawNext : null;
   const afterAuthTarget = nextPath ?? "/admin";
   const { signIn, signUp, isAdmin, user, isEmailVerified } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
@@ -32,6 +34,25 @@ export default function Auth() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+
+  useEffect(() => {
+  // If user is logged in & verified, send them to their target path or /admin
+  if (user && isEmailVerified) {
+    let target = afterAuthTarget;
+    try {
+      const storedNext = sessionStorage.getItem("mm_post_auth_next");
+      if (storedNext && storedNext.startsWith("/")) {
+        sessionStorage.removeItem("mm_post_auth_next");
+        target = storedNext;
+      }
+    } catch { /* ignore */ }
+
+    // Only trigger navigation if we aren't ALREADY at the target path
+    if (location.pathname !== target) {
+      navigate(target, { replace: true });
+    }
+  }
+}, [user, isEmailVerified, navigate, afterAuthTarget, location.pathname]);
 
   const handleGoogleSignIn = async () => {
     setIsGoogleLoading(true);
@@ -103,13 +124,6 @@ export default function Auth() {
       setShowForgotPassword(false);
     }
   };
-
-  // Redirect if already logged in as admin with verified email — but honor the OAuth
-  // consent `next` target so the MCP flow returns to /.lovable/oauth/consent.
-  if (user && isAdmin && isEmailVerified) {
-    navigate(afterAuthTarget);
-    return null;
-  }
 
   const validateForm = () => {
     try {

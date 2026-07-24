@@ -24,52 +24,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isFinance, setIsFinance] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-
-        if (session?.user) {
-          if (event === "SIGNED_IN") {
-            const provider = (session.user.app_metadata?.provider as string) || "email";
-            track.login(session.user.email ?? null, provider, true);
-            // If OAuth stashed an intended destination, honor it now.
-            try {
-              const next = sessionStorage.getItem("mm_post_auth_next");
-              if (next && next.startsWith("/") && !next.startsWith("//")) {
-                sessionStorage.removeItem("mm_post_auth_next");
-                if (window.location.pathname + window.location.search !== next) {
-                  window.location.replace(next);
-                }
-              }
-            } catch { /* ignore */ }
-          }
-          setTimeout(() => {
-            checkRoles(session.user.id);
-          }, 0);
-        } else {
-          setIsAdmin(false);
-          setIsFinance(false);
-          setIsLoading(false);
-        }
-      }
-    );
-
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-
-      if (session?.user) {
-        checkRoles(session.user.id);
-      } else {
-        setIsLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
   const checkRoles = async (userId: string) => {
     try {
       const { data, error } = await supabase
@@ -87,13 +41,49 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setIsFinance(roles.includes("finance"));
       }
     } catch (error) {
-      console.error("Error checking roles:", error);
+      console.error("Error in checkRoles:", error);
       setIsAdmin(false);
       setIsFinance(false);
     } finally {
-      setIsLoading(false);
+      setIsLoading(false); // ALWAYS resolves loading state!
     }
   };
+
+  useEffect(() => {
+    // 1. Initial Session Check
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+
+      if (session?.user) {
+        checkRoles(session.user.id);
+      } else {
+        setIsLoading(false);
+      }
+    });
+
+    // 2. State Change Listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+
+        if (session?.user) {
+          if (event === "SIGNED_IN") {
+            const provider = (session.user.app_metadata?.provider as string) || "email";
+            track.login(session.user.email ?? null, provider, true);
+          }
+          checkRoles(session.user.id);
+        } else {
+          setIsAdmin(false);
+          setIsFinance(false);
+          setIsLoading(false);
+        }
+      }
+    );
+
+    return () => subscription.unsubscribe();
+  }, []);
 
   const signIn = async (email: string, password: string) => {
     const { error } = await supabase.auth.signInWithPassword({
