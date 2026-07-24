@@ -14,15 +14,11 @@ export const formatInventoryMileage = (mileage: number | string | null | undefin
     return "Mileage TBD";
   }
 
-  const numericMileage = typeof mileage === "number"
+  let numericMileage = typeof mileage === "number"
     ? mileage
     : Number(String(mileage).replace(/,/g, "").trim());
 
   if (!Number.isFinite(numericMileage) || numericMileage <= 0) {
-    return "Mileage TBD";
-  }
-
-  if (numericMileage < 1000) {
     return "Mileage TBD";
   }
 
@@ -34,15 +30,11 @@ export const parseInventoryMileage = (mileage: number | string | null | undefine
     return 0;
   }
 
-  const numericMileage = typeof mileage === "number"
+  let numericMileage = typeof mileage === "number"
     ? mileage
     : Number(String(mileage).replace(/,/g, "").trim());
 
   if (!Number.isFinite(numericMileage) || numericMileage <= 0) {
-    return 0;
-  }
-
-  if (numericMileage < 1000) {
     return 0;
   }
 

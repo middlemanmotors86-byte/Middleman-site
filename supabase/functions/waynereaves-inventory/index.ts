@@ -133,8 +133,21 @@ function rowToVehicle(row: InventoryCacheRow) {
   const normalizedBadge = typeof row.badge === 'string' && /fallback|demo|available|in stock/i.test(row.badge)
     ? null
     : row.badge;
-  const mileageValue = typeof row.mileage === 'number' ? row.mileage : Number(String(row.mileage || '').replace(/,/g, '').trim());
-  const mileageText = Number.isFinite(mileageValue) && mileageValue > 1000 ? mileageValue.toLocaleString() : 'Mileage TBD';
+
+  // Parse raw mileage from DB
+  let rawMileage = typeof row.mileage === 'number' 
+    ? row.mileage 
+    : Number(String(row.mileage || '').replace(/,/g, '').trim());
+
+  let mileageText = 'TBD';
+
+  if (Number.isFinite(rawMileage) && rawMileage > 0) {
+    // If dealer feed stored mileage in thousands (e.g., 17, 26, 18), scale it to real mileage
+    if (rawMileage < 1000) {
+      rawMileage *= 1000;
+    }
+    mileageText = rawMileage.toLocaleString();
+  }
 
   return {
     id: row.stock_number || row.vin,
@@ -142,7 +155,7 @@ function rowToVehicle(row: InventoryCacheRow) {
     price: row.price ?? 0,
     image: row.image || '',
     year: row.year,
-    mileage: mileageText,
+    mileage: mileageText, // Formats as '17,000' so the UI can append 'mi' seamlessly
     fuel: row.fuel || 'Gasoline',
     badge: normalizedBadge || 'Available',
     transmission: row.transmission || 'Automatic',
