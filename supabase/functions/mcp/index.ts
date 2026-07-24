@@ -35,8 +35,8 @@ var search_inventory_default = defineTool({
   annotations: { readOnlyHint: true, idempotentHint: true, openWorldHint: true },
   handler: async ({ query, max_price, limit }) => {
     const env = globalThis.process?.env ?? {};
-    const supabaseUrl = env.SUPABASE_URL;
-    const anonKey = env.SUPABASE_PUBLISHABLE_KEY ?? env.SUPABASE_ANON_KEY ?? "";
+    const supabaseUrl = env.VITE_SUPABASE_URL;
+    const anonKey = env.VITE_SUPABASE_PUBLISHABLE_KEY ?? env.VITE_SUPABASE_API_KEY ?? "";
     const res = await fetch(`${supabaseUrl}/functions/v1/waynereaves-inventory`, {
       method: "POST",
       headers: {

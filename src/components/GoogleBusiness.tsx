@@ -149,7 +149,7 @@ const GoogleBusiness = () => {
               </Button>
               <Button variant="outline" className="w-full" asChild>
                 <a
-                  href="https://search.google.com/local/writereview?placeid=YOUR_PLACE_ID"
+                  href="https://g.page/r/CSSc5CilQebbEBM/review"
                   target="_blank"
                   rel="noopener noreferrer"
                 >

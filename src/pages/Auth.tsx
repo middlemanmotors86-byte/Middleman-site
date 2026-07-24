@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -45,31 +44,21 @@ export default function Auth() {
           sessionStorage.setItem("mm_post_auth_next", nextPath);
         } catch { /* ignore */ }
       }
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin }
       });
 
-      if (result.error) {
+      if (error) {
         toast({
           title: "Google sign in failed",
-          description: result.error.message || "An error occurred",
+          description: error.message || "An error occurred",
           variant: "destructive",
         });
         setIsGoogleLoading(false);
         return;
       }
-
-      if (result.redirected) {
-        // Browser will redirect to Google - just return
-        return;
-      }
-
-      // Tokens received and session set - user is authenticated
-      toast({
-        title: "Welcome!",
-        description: "You have been signed in with Google.",
-      });
-      navigate(afterAuthTarget);
+      // The user will be redirected to Google by the browser. No further action is needed here.
     } catch (error) {
       toast({
         title: "Google sign in failed",
