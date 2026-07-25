@@ -16,6 +16,7 @@ const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY, { auth: {
 
 function parseNumber(val: any): number {
   if (val === null || val === undefined || val === '') return 0;
+  if (typeof val === 'number' && Number.isFinite(val)) return val;
   const cleaned = String(val).replace(/,/g, '').replace(/[^0-9.-]/g, '');
   const n = Number(cleaned);
   return Number.isFinite(n) ? n : 0;
