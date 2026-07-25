@@ -10,16 +10,12 @@ export const normalizeInventoryBadge = (badge?: string | null): string | null =>
 };
 
 export const formatInventoryMileage = (mileage: number | string | null | undefined): string => {
-  if (mileage === null || mileage === undefined || mileage === "") {
-    return "0";
-  }
-
   let numericMileage = typeof mileage === "number"
     ? mileage
-    : Number(String(mileage).replace(/,/g, "").trim());
+    : Number(String(mileage || "0").replace(/,/g, "").trim());
 
-  if (!Number.isFinite(numericMileage) || numericMileage < 0) {
-    return "0";
+  if (!Number.isFinite(numericMileage)) {
+    return "0"; // Fallback for invalid numbers
   }
 
   return numericMileage.toLocaleString();

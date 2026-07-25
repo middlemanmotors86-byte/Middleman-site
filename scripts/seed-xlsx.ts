@@ -85,7 +85,14 @@ async function seedFromXlsx() {
     const wholesalePrice = parseNumber(row['Wholesale Price']);
 
     // 4. Vehicle Details
-    const mileage = parseNumber(row['Mileage']);
+    const mileage = parseNumber(
+      row['Mileage'] ||
+      row['mileage'] ||
+      row['MILEAGE'] ||
+      row['Odometer'] ||
+      row['odometer'] ||
+      row['miles']
+    );
     const engine = parseString(row['Engine']);
     const cylinders = parseNumber(row['Cylinders']);
     const doors = parseNumber(row['Doors'] || row['Doors.1']);
