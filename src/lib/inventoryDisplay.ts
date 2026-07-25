@@ -22,11 +22,6 @@ export const formatInventoryMileage = (mileage: number | string | null | undefin
     return "0";
   }
 
-  // If Wayne Reaves feed stored mileage in thousands (e.g. 17, 16, 20), scale it up:
-  if (numericMileage > 0 && numericMileage < 1000) {
-    numericMileage *= 1000;
-  }
-
   return numericMileage.toLocaleString();
 };
 
@@ -41,11 +36,6 @@ export const parseInventoryMileage = (mileage: number | string | null | undefine
 
   if (!Number.isFinite(numericMileage) || numericMileage < 0) {
     return 0;
-  }
-
-  // Scale up feed values under 1000 to actual mileage
-  if (numericMileage > 0 && numericMileage < 1000) {
-    numericMileage *= 1000;
   }
 
   return numericMileage;
