@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { fetchDMSInventory, syncDMSInventory, type DMSVehicle } from "@/lib/dms";
+import { fetchInventoryFromDB, syncDMSInventory, type DMSVehicle } from "@/lib/dms";
 
 interface DMSInventoryData {
   vehicles: DMSVehicle[];
   isDemo: boolean;
-  source: string; // e.g., 'wayne-reaves' or 'local-fallback'
+  source: string;
 }
 
 export const useDMSInventory = () => {
@@ -18,26 +18,12 @@ export const useDMSInventory = () => {
     setIsRefetching(true);
     setError(null);
     try {
-      const response = await fetchDMSInventory();
-      const fetchedVehicles = response.vehicles ?? [];
-
-      setData({
-        vehicles: fetchedVehicles as DMSVehicle[],
-        isDemo: Boolean(response.isDemo),
-        source: response.isDemo ? 'demo-fallback' : 'wayne-reaves',
-      });
-
-      if (!response.success) {
-        setError(new Error(response.error || response.message || 'Failed to load inventory'));
-      }
+      const vehicles = await fetchInventoryFromDB();
+      setData({ vehicles, isDemo: false, source: 'inventory-cache' });
     } catch (err) {
-      console.error("Failed to load DMS inventory:", err);
+      console.error("Failed to load inventory:", err);
       setError(err instanceof Error ? err : new Error("Failed to load inventory"));
-      setData({
-        vehicles: [],
-        isDemo: true,
-        source: 'load-error',
-      });
+      setData({ vehicles: [], isDemo: true, source: 'load-error' });
     } finally {
       setIsLoading(false);
       setIsRefetching(false);

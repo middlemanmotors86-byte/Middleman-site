@@ -1291,6 +1291,75 @@ export type Database = {
         }
         Relationships: []
       }
+      inventory_cache: {
+        Row: {
+          vin: string
+          stock_number: string | null
+          year: number | null
+          make: string | null
+          model: string | null
+          price: number | null
+          mileage: number | null
+          fuel: string | null
+          transmission: string | null
+          engine: string | null
+          drivetrain: string | null
+          color_exterior: string | null
+          color_interior: string | null
+          description: string | null
+          badge: string | null
+          features: string[] | null
+          photos: Json | null
+          image: string | null
+          data: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          vin: string
+          stock_number?: string | null
+          year?: number | null
+          make?: string | null
+          model?: string | null
+          price?: number | null
+          mileage?: number | null
+          fuel?: string | null
+          transmission?: string | null
+          engine?: string | null
+          drivetrain?: string | null
+          color_exterior?: string | null
+          color_interior?: string | null
+          description?: string | null
+          badge?: string | null
+          features?: string[] | null
+          photos?: Json | null
+          image?: string | null
+          data?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          vin?: string
+          stock_number?: string | null
+          year?: number | null
+          make?: string | null
+          model?: string | null
+          price?: number | null
+          mileage?: number | null
+          fuel?: string | null
+          transmission?: string | null
+          engine?: string | null
+          drivetrain?: string | null
+          color_exterior?: string | null
+          color_interior?: string | null
+          description?: string | null
+          badge?: string | null
+          features?: string[] | null
+          photos?: Json | null
+          image?: string | null
+          data?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
