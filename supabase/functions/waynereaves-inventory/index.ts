@@ -14,7 +14,6 @@ const WR_XML_FEED = (dealerId: string) =>
   `https://www.waynereaves.com/InventoryExport.aspx?DealerID=${encodeURIComponent(dealerId)}&Format=XML`;
 const WR_XML_FEED_ALT = (dealerId: string) =>
   `https://wreav.es/InventoryExport.aspx?DealerID=${encodeURIComponent(dealerId)}&Format=XML`;
-const FALLBACK_JSON_URL = 'https://middlemanmotors.com/inventory-fallback.json';
 
 function jsonResponse(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -98,35 +97,12 @@ async function fetchInventoryRowsFromFeed(dealerId: string) {
     };
   }
 
-  try {
-    const fallbackResponse = await fetch(FALLBACK_JSON_URL, { headers: { Accept: 'application/json' } });
-    if (!fallbackResponse.ok) {
-      throw new Error(`Fallback fetch failed with ${fallbackResponse.status}`);
-    }
-
-    const fallbackData = await fallbackResponse.json();
-    const fallbackList = Array.isArray(fallbackData)
-      ? fallbackData
-      : Array.isArray(fallbackData?.vehicles)
-        ? fallbackData.vehicles
-        : Array.isArray(fallbackData?.inventory)
-          ? fallbackData.inventory
-          : [];
-
-    return {
-      source: 'inventory-fallback',
-      rows: fallbackList.map((item: Record<string, unknown>) => normalizeInventoryRow(item, dealerId)),
-      message: 'Loaded inventory from fallback JSON feed.',
-      error: '',
-    };
-  } catch (error) {
-    return {
-      source: 'wayne-reaves-unavailable',
-      rows: [],
-      message: `Wayne Reaves feed temporarily unavailable. ${lastErr}`,
-      error: error instanceof Error ? error.message : 'Unknown error',
-    };
-  }
+  return {
+    source: 'wayne-reaves-unavailable',
+    rows: [],
+    message: `Wayne Reaves feed temporarily unavailable. ${lastErr}`,
+    error: lastErr,
+  };
 }
 
 function rowToVehicle(row: InventoryCacheRow) {
@@ -195,6 +171,7 @@ async function syncCache(client: any, dealerId: string) {
     };
   }
 
+  console.log('Upserting', feed.rows.length, 'rows from', feed.source);
   const vehiclesToUpsert = feed.rows.map((row: InventoryCacheRow) => ({
     ...row,
     updated_at: new Date().toISOString(),
