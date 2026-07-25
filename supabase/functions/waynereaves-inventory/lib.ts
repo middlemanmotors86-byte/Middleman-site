@@ -122,10 +122,6 @@ export function normalizeInventoryRow(value: Record<string, unknown>, dealerId =
       source.OdometerReading,
   );
 
-  // If Wayne Reaves passes mileage in thousands (e.g. 17, 16, 26), scale to actual miles
-  if (rawMileage !== undefined && rawMileage > 0 && rawMileage < 1000) {
-    rawMileage *= 1000;
-  }
   const mileage = rawMileage;
   const fuel = asString(source.FuelType ?? source.fuelType ?? source.Fuel);
   const transmission = asString(source.Transmission ?? source.transmission);
@@ -159,44 +155,4 @@ export function normalizeInventoryRow(value: Record<string, unknown>, dealerId =
   };
 }
 
-export function normalizeVehicle(row: InventoryCacheRow) {
-  let rawMileage =
-    typeof row.mileage === "number"
-      ? row.mileage
-      : Number(String(row.mileage || "").replace(/,/g, "").trim());
 
-  let mileageText = "0";
-
-  if (Number.isFinite(rawMileage) && rawMileage > 0) {
-    // Safety check if unscaled mileage made it into the DB table
-    if (rawMileage < 1000) {
-      rawMileage *= 1000;
-    }
-    mileageText = rawMileage.toLocaleString();
-  }
-  return {
-    id: row.stock_number || row.vin,
-    name: [row.year, row.make, row.model].filter(Boolean).join(" ").trim(),
-    price: Number(row.price ?? 0),
-    image: row.image || "",
-    year: row.year,
-    mileage: mileageText, // Formats as '17,000' so the UI can append 'mi' seamlessly
-    fuel: row.fuel || "Gasoline",
-    badge: row.badge || "Available",
-    transmission: row.transmission || "Automatic",
-    engine: row.engine || "",
-    drivetrain: row.drivetrain || "FWD",
-    mpgCity: null,
-    mpgHighway: null,
-    horsepower: null,
-    seating: 5,
-    warranty: "Extended Available",
-    vin: row.vin,
-    exteriorColor: row.color_exterior,
-    interiorColor: row.color_interior,
-    stockNumber: row.stock_number,
-    description: row.description || "",
-    features: row.features || [],
-    photos: row.photos || [],
-  };
-}

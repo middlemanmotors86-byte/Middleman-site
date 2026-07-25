@@ -61,15 +61,3 @@ $$;
 
 create index if not exists idx_inventory_cache_price on public.inventory_cache(price);
 create index if not exists idx_inventory_cache_updated_at on public.inventory_cache(updated_at desc);
-
-select cron.schedule(
-  'waynereaves-inventory-sync',
-  '*/30 * * * *',
-  $$
-  select net.http_post(
-    url := 'https://yctkxtnzjcsqanmbmciq.supabase.co/functions/v1/waynereaves-inventory',
-    body := '{"action":"sync"}'::jsonb,
-    headers := '{"Content-Type":"application/json"}'::jsonb
-  );
-  $$
-);

@@ -1,7 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { XMLParser } from "https://esm.sh/fast-xml-parser@4.3.6";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.4";
-import { normalizeInventoryRow, normalizeVehicle, toArray, type InventoryCacheRow } from "./lib.ts";
+import { normalizeInventoryRow, toArray, type InventoryCacheRow } from "./lib.ts";
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
