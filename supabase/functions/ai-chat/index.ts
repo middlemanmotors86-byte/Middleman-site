@@ -44,11 +44,11 @@ serve(async (req) => {
     }
 
     const { messages } = await req.json();
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    
-    if (!LOVABLE_API_KEY) {
-      console.error("LOVABLE_API_KEY is not configured");
-      throw new Error("LOVABLE_API_KEY is not configured");
+    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+
+    if (!GEMINI_API_KEY) {
+      console.error("GEMINI_API_KEY is not configured");
+      throw new Error("GEMINI_API_KEY is not configured");
     }
 
     console.log("Processing chat request with", messages?.length || 0, "messages");
@@ -71,48 +71,85 @@ Key facts about The Middleman:
 
 Be helpful, professional, and conversational. If you don't know specific details about a vehicle, encourage the customer to contact us directly or browse our inventory page.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
-        messages: [
-          { role: "system", content: systemPrompt },
-          ...messages,
-        ],
-        stream: true,
-      }),
-    });
+    // Convert messages to Gemini format
+    const geminiContents = messages.map((m: { role: string; content: string }) => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: m.content }],
+    }));
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: systemPrompt }] },
+          contents: geminiContents,
+          generationConfig: { temperature: 0.7, maxOutputTokens: 1024 },
+        }),
+      }
+    );
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      
+      console.error("Gemini API error:", response.status, errorText);
+
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {
           status: 429,
           headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
       }
-      if (response.status === 402) {
-        return new Response(JSON.stringify({ error: "AI usage limit reached. Please try again later." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
-      }
-      
+
       return new Response(JSON.stringify({ error: "AI service temporarily unavailable" }), {
         status: 500,
         headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }
 
-    console.log("Streaming response back to client");
+    // Transform Gemini SSE to OpenAI-compatible SSE so the frontend needs no changes
+    const { readable, writable } = new TransformStream();
+    const writer = writable.getWriter();
+    const encoder = new TextEncoder();
 
-    return new Response(response.body, {
+    (async () => {
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+
+      try {
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+
+          let newlineIndex: number;
+          while ((newlineIndex = buffer.indexOf("\n")) !== -1) {
+            let line = buffer.slice(0, newlineIndex);
+            buffer = buffer.slice(newlineIndex + 1);
+            if (line.endsWith("\r")) line = line.slice(0, -1);
+            if (!line.startsWith("data: ")) continue;
+            const jsonStr = line.slice(6).trim();
+            if (!jsonStr) continue;
+            try {
+              const parsed = JSON.parse(jsonStr);
+              const text = parsed.candidates?.[0]?.content?.parts?.[0]?.text;
+              if (text) {
+                const chunk = `data: ${JSON.stringify({ choices: [{ delta: { content: text } }] })}\n\n`;
+                await writer.write(encoder.encode(chunk));
+              }
+            } catch { /* skip malformed lines */ }
+          }
+        }
+      } finally {
+        await writer.write(encoder.encode("data: [DONE]\n\n"));
+        await writer.close();
+      }
+    })();
+
+    console.log("Streaming Gemini response back to client");
+
+    return new Response(readable, {
       headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
     });
   } catch (error) {
