@@ -30,19 +30,21 @@ function parseNumber(value: any) {
   return Number.isFinite(n) ? n : 0;
 }
 
-function parseMakeModel(value: any, fallbackName = '') {
-  const source = String(value || fallbackName || '').trim();
-  if (!source) return { make: '', model: '' };
+function parseMakeModelFromTitle(title: string) {
+  if (!title) return { make: '', model: '' };
 
-  const yearMatch = source.match(/^(\d{4})\s+/);
-  const withoutYear = yearMatch ? source.replace(yearMatch[0], '').trim() : source;
+  // Remove leading 4-digit year if present (e.g., "2018 Jeep Grand Cherokee" -> "Jeep Grand Cherokee")
+  const cleaned = title.replace(/^\d{4}\s+/, '').trim();
+  const parts = cleaned.split(/\s+/).filter(Boolean);
 
-  const parts = withoutYear.split(/\s+/).filter(Boolean);
-  if (parts.length <= 1) return { make: '', model: withoutYear };
+  if (parts.length === 0) return { make: '', model: '' };
+  if (parts.length === 1) return { make: parts[0], model: '' };
 
-  const make = parts[0];
-  const model = parts.slice(1).join(' ');
-  return { make, model };
+  // First word is Make, rest is Model
+  return {
+    make: parts[0],
+    model: parts.slice(1).join(' ')
+  };
 }
 
 async function seedDatabase() {
@@ -53,19 +55,23 @@ async function seedDatabase() {
   console.log(`Normalizing ${rawVehicles.length} vehicles...`);
 
   const normalized = rawVehicles.map((v: any) => {
-    const { make: parsedMake, model: parsedModel } = parseMakeModel(v.make || v.Make || v.MAKE || v.model || v.Model || v.MODEL || v.name || v.Name || v.title || '', v.name || v.Name || v.title || '');
-    const make = (v.make || v.Make || v.MAKE || parsedMake || '').toString().trim();
-    const model = (v.model || v.Model || v.MODEL || parsedModel || '').toString().trim();
+    // Determine title fallback
+    const titleString = v.name || v.Name || v.title || v.Title || v.vehicleName || '';
+    const parsed = parseMakeModelFromTitle(titleString);
+
+    // Explicit check -> Fallback to parsed title values
+    const make = (v.make || v.Make || v.MAKE || parsed.make || 'Unknown').toString().trim();
+    const model = (v.model || v.Model || v.MODEL || parsed.model || 'Vehicle').toString().trim();
     const year = parseYear(v.year || v.Year || v.modelYear || v.ModelYear || 0);
 
     const price = parseNumber(v.price || v.SellingPrice || v.Price || v.retailPrice || v.salePrice || v.SalePrice || 0);
     const rawMileage = parseNumber(v.mileage || v.Mileage || v.Odometer || v.odometer || 0);
     
     let mileage = rawMileage;
-    // If mileage is passed in thousands (e.g. 17, 16, 26), scale to actual miles
     if (mileage > 0 && mileage < 1000) {
       mileage *= 1000;
     }
+
     let rawPhotos = v.photos || v.Photos || v.images || v.Images || [];
     if (rawPhotos?.Photo) rawPhotos = rawPhotos.Photo;
     if (rawPhotos?.Image) rawPhotos = rawPhotos.Image;
@@ -77,7 +83,7 @@ async function seedDatabase() {
     const primaryImage = v.image || v.Image || photosList[0] || '';
 
     const vin = v.vin || v.VIN || v.Vin || v.stock_number || v.StockNumber || `TEMP-${Math.random()}`;
-    const stockNumber = v.stockNumber || v.StockNumber || v.stock_number || v.StockNumber || v.stock || v.Stock || vin;
+    const stockNumber = v.stockNumber || v.StockNumber || v.stock_number || v.stock || v.Stock || vin;
 
     return {
       vin,
@@ -86,14 +92,14 @@ async function seedDatabase() {
       make,
       model,
       price,
-      mileage: mileage,
+      mileage,
       fuel: v.fuel || v.FuelType || v.fuelType || 'Gasoline',
       transmission: v.transmission || v.Transmission || 'Automatic',
       engine: v.engine || v.Engine || '',
       drivetrain: v.drivetrain || v.Drivetrain || '',
       color_exterior: v.exteriorColor || v.ExteriorColor || v.colorExterior || '',
       color_interior: v.interiorColor || v.InteriorColor || v.colorInterior || '',
-      description: v.description || v.Description || v.name || v.Name || '',
+      description: v.description || v.Description || titleString,
       badge: v.badge || v.Badge || 'Available',
       features: Array.isArray(v.features) ? v.features : [],
       photos: photosList.map((url: string) => ({ url })),
@@ -105,7 +111,6 @@ async function seedDatabase() {
 
   console.log(`Upserting ${normalized.length} normalized records into inventory_cache...`);
 
-  // Target 'inventory_cache' since that's what your frontend reads!
   const { error } = await supabase
     .from('inventory_cache')
     .upsert(normalized, { onConflict: 'vin' });
@@ -113,7 +118,7 @@ async function seedDatabase() {
   if (error) {
     console.error('Upsert failed:', error);
   } else {
-    console.log(`✅ Successfully populated inventory_cache with photos, makes, models, and prices!`);
+    console.log(`✅ Successfully populated inventory_cache with makes, models, photos, and prices!`);
   }
 }
 
