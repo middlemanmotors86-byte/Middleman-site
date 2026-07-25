@@ -57,6 +57,9 @@ async function seedFromXlsx() {
     const price = parseNumber(row['Price'] || row['Cost'] || 0);
     const mileage = parseNumber(row['Mileage'] || 0);
 
+    const primaryImage = String(row['Photo'] || row['Image'] || row['Photo URL'] || '').trim();
+    const photosList = primaryImage ? [{ url: primaryImage }] : [];
+
     return {
       vin,
       stock_number: stockNumber,
@@ -74,8 +77,8 @@ async function seedFromXlsx() {
       description: String(row['Description'] || `${year} ${make} ${fullModel}`).trim(),
       badge: 'Available',
       features: row['Options'] ? String(row['Options']).split(',').map(s => s.trim()) : [],
-      photos: [], // Add default image or photo logic if URLs exist
-      image: '',
+      photos: photosList,
+      image: primaryImage,
       data: row, // Store full raw row as JSONB backup
       updated_at: new Date().toISOString(),
     };
