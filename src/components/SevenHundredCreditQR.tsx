@@ -1,5 +1,6 @@
-import { Download, ScanLine, ShieldCheck, Smartphone, CheckCircle2, MessageSquare, Calendar, Car } from "lucide-react";
+import { ScanLine, ShieldCheck, Smartphone, CheckCircle2, MessageSquare, Calendar, Car } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import qrCodeSrc from "@/assets/QR-700credit-softpull.png";
 
 interface SevenHundredCreditQRProps {
@@ -12,6 +13,7 @@ interface SevenHundredCreditQRProps {
  * the center of the code.
  */
 const SevenHundredCreditQR = ({ compact = false }: SevenHundredCreditQRProps) => {
+  const navigate = useNavigate();
   return (
     <section
       aria-label="Scan to pre-qualify with 700Credit"
@@ -23,89 +25,30 @@ const SevenHundredCreditQR = ({ compact = false }: SevenHundredCreditQRProps) =>
       </div>
 
       <div className="relative flex flex-col items-center gap-6 md:flex-row md:justify-between md:gap-10">
-        <div className="max-w-md text-center md:text-left">
-          <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-semibold uppercase tracking-widest text-primary mb-3">
-            <ScanLine className="h-3.5 w-3.5" />
-            Scan to Pre-Qualify
-          </div>
+        <div className="max-w-md text-center md:text-left">          
           <h2 className="font-heading text-2xl md:text-3xl font-bold text-foreground mb-3">
             Pre-Qualify in Seconds — Right From Your Phone
           </h2>
-          <p className="text-sm md:text-base text-muted-foreground mb-4">
-            Point your camera at this code to open Middleman Motors’ 700Credit
-            QuickQualify soft-pull page.
-          </p>
-          {/* Pre-Qualifying Fee Disclosure */}
-          <div className="bg-secondary/60 backdrop-blur-sm border border-border/50 rounded-lg px-4 py-3 mb-4 max-w-xl animate-slide-up" style={{ animationDelay: "0.5s" }}>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              <span className="font-semibold text-foreground">Pre-Qualifying Fee:</span>{" "}
-              A non-refundable fee of <span className="font-semibold text-primary">$100</span> is required to obtain a soft credit report for evaluating eligibility for vehicle purchase and financing. This does not impact your credit score.
-            </p>
-          </div>
           <ul className="mb-6 space-y-2 text-sm text-muted-foreground">
             <li className="flex items-center gap-2 justify-center md:justify-start">
               <ShieldCheck className="h-4 w-4 text-primary shrink-0" />
               Soft inquiry only
-            </li>
-            <li className="flex items-center gap-2 justify-center md:justify-start">
-              <Smartphone className="h-4 w-4 text-primary shrink-0" />
-              Works with any phone camera
-            </li>
+            </li>            
           </ul>
-          <div className="flex flex-wrap justify-center md:justify-start gap-3">
-            <Button asChild size="lg" className="gap-2 shadow-gold">
-              <a href={qrCodeSrc} download="middleman-700credit-qr.png">
-                <Download className="h-5 w-5" />
-                Download QR Code
+          <div className="flex flex-wrap gap-3 justify-center md:justify-start">
+            <Button variant="heroOutline" onClick={() => navigate("/inventory")}>
+              Browse Inventory
+            </Button>
+            <Button variant="hero" asChild>
+              <a href="https://www.700dealer.com/QuickQualify/2865b289e4604aef9f86912aac8ad1fb-2026623?source=Text" target="_blank" rel="noopener noreferrer">
+                Pre-Qualify Now
               </a>
             </Button>
-        
           </div>
-        </div>
-        
-
-        <div className="shrink-0 flex flex-col items-center">
-          {/* How to scan */}
-          <div className="mt-5 mb-4 w-full max-w-sm rounded-xl border border-border bg-secondary/40 p-4 text-left">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-primary">
-              How to scan
-            </p>
-            <ol className="space-y-2.5 text-sm text-muted-foreground">
-              <li className="flex gap-3">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">
-                  1
-                </span>
-                <span>Open your phone’s camera app.</span>
-              </li>
-              <li className="flex gap-3">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">
-                  2
-                </span>
-                <span>Point it at the code above and tap the link that pops up.</span>
-              </li>
-              <li className="flex gap-3">
-                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">
-                  3
-                </span>
-                <span>Enter your name and address to see your pre-qualification results.</span>
-              </li>
-            </ol>
-          </div>
-
-          {/* QR Code */}
-          <div className="rounded-xl border-2 border-primary/30 bg-white p-3 shadow-gold">
-            <img
-              src={qrCodeSrc}
-              alt="QR code for Middleman Motors 700Credit soft-pull pre-qualification"
-              className={`block rounded-lg ${compact ? "h-48 w-48" : "h-64 w-64 md:h-80 md:w-80"}`}
-              loading="lazy"
-            />
-          </div>
-          <p className="mt-3 text-center text-xs text-muted-foreground">
-            Scans tracked via middlemanmotors.com/scan → 700Credit
-          </p>
         </div>
       </div>
+
+
 
       {/* What happens after pre-qualifying */}
       <div className="relative mt-8 rounded-xl border border-primary/30 bg-secondary/30 p-5 md:p-6">
@@ -150,7 +93,7 @@ const SevenHundredCreditQR = ({ compact = false }: SevenHundredCreditQRProps) =>
             </div>
           </div>
         </div>
-      </div>
+      </div>  
     </section>
   );
 };

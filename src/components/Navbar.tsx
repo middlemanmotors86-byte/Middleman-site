@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Phone, MapPin, ShoppingBag, Scale, FileDown, ChevronDown, Heart, Users, LucideIcon } from "lucide-react";
+import { Menu, X, Phone, MapPin, Scale, FileDown, ChevronDown, Heart, Users, LucideIcon } from "lucide-react";
 import { Link } from "react-router-dom";
-import { CartDrawer } from "@/components/CartDrawer";
 import { useComparisonStore } from "@/stores/comparisonStore";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
@@ -59,7 +58,6 @@ const Navbar = () => {
 
   // Grouped: Secondary explore options dropdown
   const exploreLinks: NavLink[] = [
-    { label: "Merch", href: "#merch", icon: ShoppingBag },
     { label: "Community", href: "#community", icon: Heart },
     { label: "Gov Contracting", href: "/government", isPage: true, icon: Users },
   ];
@@ -208,7 +206,6 @@ const Navbar = () => {
 
             {/* Action Group */}
             <div className="flex items-center gap-3 ml-2">
-              <CartDrawer />
               {user && isAdmin && (
                 <Button asChild variant="ghost" size="sm">
                   <Link to="/admin">Admin</Link>
@@ -334,7 +331,6 @@ const Navbar = () => {
 
               {/* Mobile Bottom Action Row */}
               <div className="flex items-center gap-4 mt-2 pt-2 border-t border-border">
-                <CartDrawer />
                 {user ? (
                   <Button variant="outline" className="flex-1" onClick={() => { signOut(); setIsOpen(false); }}>
                     Sign Out

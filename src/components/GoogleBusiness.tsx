@@ -26,7 +26,7 @@ const GoogleBusiness = () => {
             Find <span className="text-gradient-gold">Middleman Motors</span>
           </h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Proudly serving from Georgia to Virginia with safe, reliable, and affordable vehicles — no hidden fees, no pressure.
+            Safe, reliable, and affordable vehicles — no hidden fees, no pressure.
           </p>
         </div>
 
@@ -119,21 +119,7 @@ const GoogleBusiness = () => {
                   </div>
                 ))}
               </div>
-            </div>
-
-            {/* QR Code */}
-            <div className="flex flex-col items-center gap-2 pt-2 border-t border-border">
-              <div className="flex items-center gap-2 mt-3">
-                <ScanLine className="w-4 h-4 text-primary" />
-                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Scan to Visit</span>
-              </div>
-              <img
-                src={qrCode}
-                alt="Scan QR code to visit middlemanmotors.com"
-                className="w-36 h-36"
-                loading="lazy"
-              />
-            </div>
+            </div>            
 
             {/* Action Buttons */}
             <div className="flex flex-col gap-2 pt-2">

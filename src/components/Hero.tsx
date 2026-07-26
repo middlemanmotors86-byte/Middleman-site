@@ -1,9 +1,36 @@
 import { Button } from "@/components/ui/button";
-import { ChevronRight, Shield, DollarSign, Heart } from "lucide-react";
+import {
+  ChevronRight, Lock,
+  TrendingUp
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import middlemanSilhouette from "@/assets/middleman-silhouette.jpg";
 
 const Hero = () => {
+
+  const benefits = [
+    {
+      icon: Lock,
+      title: "No SSN. No Date of Birth.",
+      body: "QuickQualify only needs your name and address to check pre-approval status.",
+    },
+    {
+      icon: Lock,
+      title: "Soft credit pull — zero impact",
+      body: "This is a soft inquiry. It will NOT affect your credit score in any way.",
+    },
+    {
+      icon: TrendingUp,
+      title: "Real answer in under 60 seconds",
+      body: "Get your FICO® score range and pre-qualification results instantly.",
+    },
+    {
+      icon: TrendingUp,
+      title: "See real payment options",
+      body: "Once pre-qualified, our team can quote actual terms on any vehicle in stock.",
+    },
+  ];
+
   const navigate = useNavigate();
   return (
     <section
@@ -21,7 +48,7 @@ const Hero = () => {
         decoding="async"
         className="absolute inset-0 w-full h-full object-cover"
       />
-      
+
       {/* Gradient Overlay */}
       <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/60" />
       <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-background/50" />
@@ -30,7 +57,7 @@ const Hero = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="max-w-3xl">
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 bg-secondary/80 backdrop-blur-sm border border-primary/30 rounded-full px-4 py-2 mb-6 animate-fade-in">
+          <div className="inline-flex items-center gap-2 bg-secondary/80 backdrop-blur-sm border border-primary/30 rounded-full px-4 py-2 mb-8 animate-fade-in">
             <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
             <span className="text-sm text-muted-foreground">
               Servicing From Georgia To Virginia And Beyond
@@ -59,24 +86,35 @@ const Hero = () => {
             <Button variant="hero" onClick={() => navigate("/quick-qualify")}>
               Pre-Qualify in 60 Seconds
               <ChevronRight className="w-5 h-5" />
-            </Button>
-            <Button variant="heroOutline" onClick={() => navigate("/inventory")}>
-              Browse Inventory
-            </Button>
-          </div>      
-
-          {/* Trust Indicators */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 animate-slide-up" style={{ animationDelay: "0.6s" }}>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center">
-                <Heart className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="font-semibold text-foreground">Community First</p>
-                <p className="text-sm text-muted-foreground">With Continued Support</p>
-              </div>
-            </div>
+            </Button>            
           </div>
+
+          {/* Pre-Qualifying Fee Disclosure */}
+          <div className="bg-secondary/60 backdrop-blur-sm border border-border/50 rounded-lg px-4 py-3 mb-4 max-w-xl animate-slide-up" style={{ animationDelay: "0.5s" }}>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              <span className="font-semibold text-foreground">Pre-Qualifying Fee:</span>{" "}
+              A non-refundable fee of <span className="font-semibold text-primary">$100</span> is required to obtain a soft credit report for evaluating eligibility for vehicle purchase and financing. This does not impact your credit score.
+            </p>
+          </div>
+
+          {/* Benefits */}
+          <div className="grid md:grid-cols-2 gap-4 mb-10">
+            {benefits.map((b) => (
+              <div
+                key={b.title}
+                className="flex gap-4 rounded-xl border border-border bg-card p-5"
+              >
+                <div className="h-10 w-10 shrink-0 rounded-lg bg-primary/15 ring-1 ring-primary/30 flex items-center justify-center">
+                  <b.icon className="h-5 w-5 text-primary" />
+                </div>
+                <div>
+                  <p className="font-semibold text-foreground mb-1">{b.title}</p>
+                  <p className="text-sm text-muted-foreground">{b.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+
         </div>
       </div>
 

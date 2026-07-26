@@ -44,11 +44,13 @@ serve(async (req) => {
     }
 
     const { messages } = await req.json();
-    const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY");
+    const GOOGLE_CLOUD_API_KEY = Deno.env.get("GOOGLE_CLOUD_API_KEY");
+    const PROJECT_ID = Deno.env.get("GOOGLE_CLOUD_PROJECT_ID");
+    const REGION = Deno.env.get("GOOGLE_CLOUD_REGION") || "us-central1";
 
-    if (!GEMINI_API_KEY) {
-      console.error("GEMINI_API_KEY is not configured");
-      throw new Error("GEMINI_API_KEY is not configured");
+    if (!GOOGLE_CLOUD_API_KEY || !PROJECT_ID) {
+      console.error("GOOGLE_CLOUD_API_KEY or GOOGLE_CLOUD_PROJECT_ID is not configured");
+      throw new Error("Google Cloud credentials not configured");
     }
 
     console.log("Processing chat request with", messages?.length || 0, "messages");
@@ -71,14 +73,13 @@ Key facts about The Middleman:
 
 Be helpful, professional, and conversational. If you don't know specific details about a vehicle, encourage the customer to contact us directly or browse our inventory page.`;
 
-    // Convert messages to Gemini format
     const geminiContents = messages.map((m: { role: string; content: string }) => ({
       role: m.role === "assistant" ? "model" : "user",
       parts: [{ text: m.content }],
     }));
 
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:streamGenerateContent?alt=sse&key=${GEMINI_API_KEY}`,
+      `https://${REGION}-aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/${REGION}/publishers/google/models/gemini-2.5-flash-lite:streamGenerateContent?key=${GOOGLE_CLOUD_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -92,7 +93,7 @@ Be helpful, professional, and conversational. If you don't know specific details
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Gemini API error:", response.status, errorText);
+      console.error("Vertex AI error:", response.status, errorText);
 
       if (response.status === 429) {
         return new Response(JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }), {

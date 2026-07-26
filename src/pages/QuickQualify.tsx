@@ -3,11 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
-  ArrowLeft,
-  Lock,
-  TrendingUp,
-  Phone,
-  Mail,
+  ArrowLeft,  
   FileDown,
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -15,31 +11,6 @@ import Footer from "@/components/Footer";
 import SevenHundredCreditQR from "@/components/SevenHundredCreditQR";
 import { track } from "@/lib/tracking";
 import { usePageView } from "@/hooks/usePageView";
-
-
-
-const benefits = [
-  {
-    icon: Lock,
-    title: "No SSN. No Date of Birth.",
-    body: "QuickQualify only needs your name and address to check pre-approval status.",
-  },
-  {
-    icon: Lock,
-    title: "Soft credit pull — zero impact",
-    body: "This is a soft inquiry. It will NOT affect your credit score in any way.",
-  },
-  {
-    icon: TrendingUp,
-    title: "Real answer in under 60 seconds",
-    body: "Get your FICO® score range and pre-qualification results instantly.",
-  },
-  {
-    icon: TrendingUp,
-    title: "See real payment options",
-    body: "Once pre-qualified, our team can quote actual terms on any vehicle in stock.",
-  },
-];
 
 
 const QuickQualify = () => {
@@ -67,26 +38,7 @@ const QuickQualify = () => {
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Home
-          </Link>
-
-
-          {/* Benefits */}
-          <div className="grid md:grid-cols-2 gap-4 mb-10">
-            {benefits.map((b) => (
-              <div
-                key={b.title}
-                className="flex gap-4 rounded-xl border border-border bg-card p-5"
-              >
-                <div className="h-10 w-10 shrink-0 rounded-lg bg-primary/15 ring-1 ring-primary/30 flex items-center justify-center">
-                  <b.icon className="h-5 w-5 text-primary" />
-                </div>
-                <div>
-                  <p className="font-semibold text-foreground mb-1">{b.title}</p>
-                  <p className="text-sm text-muted-foreground">{b.body}</p>
-                </div>
-              </div>
-            ))}
-          </div>
+          </Link>    
 
           {/* Scan-to-pre-qualify QR */}
           <div className="mb-10">

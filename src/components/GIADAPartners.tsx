@@ -205,7 +205,7 @@ const GIADAPartners = () => {
       <div className="container mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center mb-12">
           <GIADABanner variant="full" className="mb-6" />
-          <h2 className="text-3xl md:text-5xl font-heading font-bold text-foreground mt-2 mb-6">
+          {/* <h2 className="text-3xl md:text-5xl font-heading font-bold text-foreground mt-2 mb-6">
             Our Industry <span className="text-gradient-gold">Network</span>
           </h2>
           <p className="text-muted-foreground text-lg">
@@ -215,8 +215,8 @@ const GIADAPartners = () => {
           </p>
         </div>
 
-        {/* Featured Categories Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
+        
+         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-10">
           {featuredCategories.map((category) => {
             const isExpanded = expandedCategory === category.label;
             const displayPartners = isExpanded ? category.partners : category.partners.slice(0, 3);
@@ -307,7 +307,6 @@ const GIADAPartners = () => {
           })}
         </div>
 
-        {/* CTA to full partners page */}
         <div className="text-center">
           <Button
             variant="outline"
@@ -317,8 +316,9 @@ const GIADAPartners = () => {
             <Award className="w-5 h-5 mr-2" />
             View All {partnerCategories.length} Partner Categories
           </Button>
-        </div>
+        </div> */}
       </div>
+    </div>
     </section>
   );
 };

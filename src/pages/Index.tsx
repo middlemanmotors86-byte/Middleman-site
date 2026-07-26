@@ -6,7 +6,6 @@ import FeaturedInventory from "@/components/FeaturedInventory";
 import WhyChooseUs from "@/components/WhyChooseUs";
 
 import AboutMission from "@/components/AboutMission";
-import MerchStore from "@/components/MerchStore";
 import GIADAPartners from "@/components/GIADAPartners";
 
 import FAQ from "@/components/FAQ";
@@ -86,7 +85,6 @@ const Index = () => {
         
         <AboutMission />
         <GIADAPartners />
-        <MerchStore />
         <FAQ />
         <GoogleBusiness />
         <NewsletterSignup />

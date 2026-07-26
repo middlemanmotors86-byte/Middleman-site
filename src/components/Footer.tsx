@@ -67,8 +67,7 @@ const Footer = () => {
               MIDDLEMAN MOTORS
             </h3>
             <p className="text-muted-foreground mb-6">
-              Providing vehicles from Georgia to Virginia. Safe, reliable, and 
-              affordable—no hidden fees, no pressure, just honest car buying.
+              Safe, reliable, and affordable—no hidden fees, no pressure, just honest car buying.
             </p>
             <div className="flex gap-3">
               {socialLinks.map((social) => (
